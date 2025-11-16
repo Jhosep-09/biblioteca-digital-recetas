@@ -59,25 +59,6 @@ Una aplicación móvil Android para descubrir, filtrar y guardar recetas favorit
 - Java 11+
 - Android Studio
 
----
-
-## 🚀 Cómo ejecutar
-
-1. Clona el repositorio
-```bash
-git clone https://github.com/[tu-usuario]/BibliotecaDeRecetas.git
-```
-
-2. Abre en Android Studio
-
-3. Espera a que sincronice Gradle
-
-4. Click en Run (▶️)
-
-5. Selecciona emulador o dispositivo
-
----
-
 ## 📊 Estructura de Carpetas
 ```
 app/
