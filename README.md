@@ -1,6 +1,11 @@
 # Biblioteca Digital de Recetas
 
-Una aplicación móvil Android para descubrir, filtrar y guardar recetas favoritas.
+INTEGRANTES:
+- Simon Gonzales Ronaldo Jhosep
+- Estrada Rivera Jamil
+- Dueñas Loyola Yhozira Milagros
+- Huancaya Recines Ericsson
+- Ramirez Masgo Nilton Daniel
 
 ## 📱 Estado Actual: Hito 1
 
