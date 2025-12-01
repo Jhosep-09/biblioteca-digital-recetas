@@ -3,14 +3,17 @@
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     android:orientation="vertical"
-    android:background="#F5F5F5">
+    android:background="#FFF8F8">
 
+    <!-- TOOLBAR -->
     <androidx.appcompat.widget.Toolbar
         android:id="@+id/toolbar"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:background="#1976D2"
-        android:elevation="4dp" />
+        android:background="#D32F2F"
+        android:elevation="6dp"
+        android:title="Recetas"
+        android:titleTextColor="#FFFFFF" />
 
     <ScrollView
         android:layout_width="match_parent"
@@ -20,44 +23,48 @@
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:orientation="vertical"
-            android:padding="16dp">
+            android:padding="18dp">
 
-            <!-- HEADER BIENVENIDA -->
+            <!-- HEADER -->
             <TextView
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:text="📚 Biblioteca de Recetas"
+                android:text="Recetas"
                 android:textSize="32sp"
                 android:textStyle="bold"
-                android:textColor="#1976D2"
-                android:gravity="center"
-                android:layout_marginTop="16dp"
-                android:layout_marginBottom="8dp" />
+                android:textColor="#B71C1C"
+                android:layout_marginTop="12dp"
+                android:layout_marginBottom="6dp" />
 
             <TextView
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:text="Descubre, aprende y disfruta cocinando"
-                android:textSize="14sp"
-                android:textColor="#757575"
-                android:gravity="center"
-                android:layout_marginBottom="32dp" />
+                android:text="Explora, aprende y cocina como un chef"
+                android:textSize="15sp"
+                android:textColor="#7A7A7A"
+                android:gravity="left"
+                android:layout_marginBottom="30dp" />
 
-            <!-- CATEGORÍAS POPULARES -->
+            <!-- CATEGORÍAS -->
             <TextView
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:text="CATEGORÍAS POPULARES"
-                android:textSize="14sp"
+                android:textSize="15sp"
                 android:textStyle="bold"
-                android:textColor="#212121"
-                android:layout_marginBottom="12dp" />
+                android:textColor="#B71C1C"
+                android:layout_marginBottom="14dp" />
 
             <LinearLayout
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:orientation="horizontal"
-                android:layout_marginBottom="24dp">
+                android:gravity="center"
+                android:layout_marginBottom="26dp">
+
+                <!-- CARD BASE -->
+                <!-- REEMPLAZA card_background por card_red_background -->
+                <!-- ejemplo de card con estilo rojizo -->
 
                 <!-- VEGETARIANA -->
                 <LinearLayout
@@ -65,34 +72,33 @@
                     android:layout_width="0dp"
                     android:layout_height="wrap_content"
                     android:layout_weight="1"
+                    android:padding="14dp"
+                    android:background="@drawable/card_red_background"
                     android:orientation="vertical"
                     android:gravity="center"
-                    android:padding="12dp"
-                    android:background="@drawable/card_background"
-                    android:layout_marginEnd="8dp">
+                    android:layout_marginEnd="6dp">
 
                     <TextView
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
-                        android:text="🥗"
-                        android:textSize="32sp"
-                        android:layout_marginBottom="4dp" />
+                        android:text="🥙"
+                        android:textSize="34sp"
+                        android:layout_marginBottom="6dp" />
 
                     <TextView
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
                         android:text="Vegetariana"
-                        android:textSize="12sp"
+                        android:textSize="13sp"
                         android:textStyle="bold"
-                        android:textColor="#212121"
-                        android:gravity="center" />
+                        android:textColor="#B71C1C" />
 
                     <TextView
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
                         android:text="(2)"
-                        android:textSize="10sp"
-                        android:textColor="#757575" />
+                        android:textSize="11sp"
+                        android:textColor="#7A7A7A" />
                 </LinearLayout>
 
                 <!-- RÁPIDAS -->
@@ -101,35 +107,34 @@
                     android:layout_width="0dp"
                     android:layout_height="wrap_content"
                     android:layout_weight="1"
+                    android:padding="14dp"
+                    android:background="@drawable/card_red_background"
                     android:orientation="vertical"
                     android:gravity="center"
-                    android:padding="12dp"
-                    android:background="@drawable/card_background"
-                    android:layout_marginStart="4dp"
-                    android:layout_marginEnd="4dp">
+                    android:layout_marginStart="6dp"
+                    android:layout_marginEnd="6dp">
 
                     <TextView
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
-                        android:text="⚡"
-                        android:textSize="32sp"
-                        android:layout_marginBottom="4dp" />
+                        android:text="🍟"
+                        android:textSize="34sp"
+                        android:layout_marginBottom="6dp" />
 
                     <TextView
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
                         android:text="Rápidas"
-                        android:textSize="12sp"
+                        android:textSize="13sp"
                         android:textStyle="bold"
-                        android:textColor="#212121"
-                        android:gravity="center" />
+                        android:textColor="#B71C1C" />
 
                     <TextView
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
                         android:text="(4)"
-                        android:textSize="10sp"
-                        android:textColor="#757575" />
+                        android:textSize="11sp"
+                        android:textColor="#7A7A7A" />
                 </LinearLayout>
 
                 <!-- POSTRES -->
@@ -138,35 +143,34 @@
                     android:layout_width="0dp"
                     android:layout_height="wrap_content"
                     android:layout_weight="1"
+                    android:padding="14dp"
+                    android:background="@drawable/card_red_background"
                     android:orientation="vertical"
                     android:gravity="center"
-                    android:padding="12dp"
-                    android:background="@drawable/card_background"
-                    android:layout_marginStart="4dp"
-                    android:layout_marginEnd="4dp">
+                    android:layout_marginStart="6dp"
+                    android:layout_marginEnd="6dp">
 
                     <TextView
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
-                        android:text="🍰"
-                        android:textSize="32sp"
-                        android:layout_marginBottom="4dp" />
+                        android:text="🧁"
+                        android:textSize="34sp"
+                        android:layout_marginBottom="6dp" />
 
                     <TextView
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
                         android:text="Postres"
-                        android:textSize="12sp"
+                        android:textSize="13sp"
                         android:textStyle="bold"
-                        android:textColor="#212121"
-                        android:gravity="center" />
+                        android:textColor="#B71C1C" />
 
                     <TextView
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
                         android:text="(3)"
-                        android:textSize="10sp"
-                        android:textColor="#757575" />
+                        android:textSize="11sp"
+                        android:textColor="#7A7A7A" />
                 </LinearLayout>
 
                 <!-- TODAS -->
@@ -175,36 +179,34 @@
                     android:layout_width="0dp"
                     android:layout_height="wrap_content"
                     android:layout_weight="1"
+                    android:padding="14dp"
+                    android:background="@drawable/card_red_background"
                     android:orientation="vertical"
                     android:gravity="center"
-                    android:padding="12dp"
-                    android:background="@drawable/card_background"
-                    android:layout_marginStart="8dp">
+                    android:layout_marginStart="6dp">
 
                     <TextView
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
-                        android:text="👀"
-                        android:textSize="32sp"
-                        android:layout_marginBottom="4dp" />
+                        android:text="🥘"
+                        android:textSize="34sp"
+                        android:layout_marginBottom="6dp" />
 
                     <TextView
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
                         android:text="Todas"
-                        android:textSize="12sp"
+                        android:textSize="13sp"
                         android:textStyle="bold"
-                        android:textColor="#212121"
-                        android:gravity="center" />
+                        android:textColor="#B71C1C" />
 
                     <TextView
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
                         android:text="(10)"
-                        android:textSize="10sp"
-                        android:textColor="#757575" />
+                        android:textSize="11sp"
+                        android:textColor="#7A7A7A" />
                 </LinearLayout>
-
             </LinearLayout>
 
             <!-- RECETAS DESTACADAS -->
@@ -212,149 +214,16 @@
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:text="RECETAS DESTACADAS"
-                android:textSize="14sp"
+                android:textSize="16sp"
                 android:textStyle="bold"
-                android:textColor="#212121"
-                android:layout_marginBottom="12dp"
-                android:layout_marginTop="16dp" />
+                android:textColor="#B71C1C"
+                android:layout_marginBottom="10dp" />
 
-            <!-- RECETA 1 -->
-            <LinearLayout
+            <androidx.recyclerview.widget.RecyclerView
+                android:id="@+id/recetasRecyclerView1"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:orientation="vertical"
-                android:background="@drawable/card_background"
-                android:padding="12dp"
-                android:layout_marginBottom="8dp">
-
-                <LinearLayout
-                    android:layout_width="match_parent"
-                    android:layout_height="wrap_content"
-                    android:orientation="horizontal">
-
-                    <TextView
-                        android:layout_width="wrap_content"
-                        android:layout_height="wrap_content"
-                        android:text="🌟"
-                        android:textSize="24sp"
-                        android:layout_marginEnd="12dp" />
-
-                    <LinearLayout
-                        android:layout_width="0dp"
-                        android:layout_height="wrap_content"
-                        android:layout_weight="1"
-                        android:orientation="vertical">
-
-                        <TextView
-                            android:layout_width="wrap_content"
-                            android:layout_height="wrap_content"
-                            android:text="Pasta Carbonara"
-                            android:textSize="14sp"
-                            android:textStyle="bold"
-                            android:textColor="#212121" />
-
-                        <TextView
-                            android:layout_width="wrap_content"
-                            android:layout_height="wrap_content"
-                            android:text="⚡ Rápida | ⏱️ 20 min"
-                            android:textSize="12sp"
-                            android:textColor="#757575"
-                            android:layout_marginTop="4dp" />
-                    </LinearLayout>
-                </LinearLayout>
-            </LinearLayout>
-
-            <!-- RECETA 2 -->
-            <LinearLayout
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:orientation="vertical"
-                android:background="@drawable/card_background"
-                android:padding="12dp"
-                android:layout_marginBottom="8dp">
-
-                <LinearLayout
-                    android:layout_width="match_parent"
-                    android:layout_height="wrap_content"
-                    android:orientation="horizontal">
-
-                    <TextView
-                        android:layout_width="wrap_content"
-                        android:layout_height="wrap_content"
-                        android:text="🌟"
-                        android:textSize="24sp"
-                        android:layout_marginEnd="12dp" />
-
-                    <LinearLayout
-                        android:layout_width="0dp"
-                        android:layout_height="wrap_content"
-                        android:layout_weight="1"
-                        android:orientation="vertical">
-
-                        <TextView
-                            android:layout_width="wrap_content"
-                            android:layout_height="wrap_content"
-                            android:text="Brownies de Chocolate"
-                            android:textSize="14sp"
-                            android:textStyle="bold"
-                            android:textColor="#212121" />
-
-                        <TextView
-                            android:layout_width="wrap_content"
-                            android:layout_height="wrap_content"
-                            android:text="🍰 Postres | ⏱️ 45 min"
-                            android:textSize="12sp"
-                            android:textColor="#757575"
-                            android:layout_marginTop="4dp" />
-                    </LinearLayout>
-                </LinearLayout>
-            </LinearLayout>
-
-            <!-- RECETA 3 -->
-            <LinearLayout
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:orientation="vertical"
-                android:background="@drawable/card_background"
-                android:padding="12dp"
-                android:layout_marginBottom="24dp">
-
-                <LinearLayout
-                    android:layout_width="match_parent"
-                    android:layout_height="wrap_content"
-                    android:orientation="horizontal">
-
-                    <TextView
-                        android:layout_width="wrap_content"
-                        android:layout_height="wrap_content"
-                        android:text="🌟"
-                        android:textSize="24sp"
-                        android:layout_marginEnd="12dp" />
-
-                    <LinearLayout
-                        android:layout_width="0dp"
-                        android:layout_height="wrap_content"
-                        android:layout_weight="1"
-                        android:orientation="vertical">
-
-                        <TextView
-                            android:layout_width="wrap_content"
-                            android:layout_height="wrap_content"
-                            android:text="Pollo al Limón"
-                            android:textSize="14sp"
-                            android:textStyle="bold"
-                            android:textColor="#212121" />
-
-                        <TextView
-                            android:layout_width="wrap_content"
-                            android:layout_height="wrap_content"
-                            android:text="⚡ Rápida | ⏱️ 30 min"
-                            android:textSize="12sp"
-                            android:textColor="#757575"
-                            android:layout_marginTop="4dp" />
-                    </LinearLayout>
-                </LinearLayout>
-            </LinearLayout>
+                android:layout_marginTop="8dp" />
 
         </LinearLayout>
 
