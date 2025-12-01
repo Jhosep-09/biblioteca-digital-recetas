@@ -6,19 +6,24 @@ import android.widget.Button;
 import android.widget.EditText;
 import android.widget.TextView;
 import android.widget.Toast;
+
 import androidx.appcompat.app.AppCompatActivity;
 
 import com.example.biblioteca_digital.MainActivity;
 import com.example.biblioteca_digital.R;
+import com.google.firebase.auth.FirebaseAuth;
+import com.google.firebase.firestore.FirebaseFirestore;
+
+import java.util.HashMap;
 
 public class RegisterActivity extends AppCompatActivity {
 
-    private EditText nombreEditText;
-    private EditText emailEditText;
-    private EditText passwordEditText;
-    private EditText confirmPasswordEditText;
+    private EditText nombreEditText, emailEditText, passwordEditText, confirmPasswordEditText;
     private Button registerButton;
     private TextView backToLoginLink;
+
+    private FirebaseAuth auth;
+    private FirebaseFirestore firestore;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -32,12 +37,11 @@ public class RegisterActivity extends AppCompatActivity {
         registerButton = findViewById(R.id.registerButton);
         backToLoginLink = findViewById(R.id.backToLoginLink);
 
-        registerButton.setOnClickListener(v -> registrarUsuario());
+        auth = FirebaseAuth.getInstance();
+        firestore = FirebaseFirestore.getInstance();
 
-        backToLoginLink.setOnClickListener(v -> {
-            finish();
-            overridePendingTransition(android.R.anim.slide_in_left, android.R.anim.slide_out_right);
-        });
+        registerButton.setOnClickListener(v -> registrarUsuario());
+        backToLoginLink.setOnClickListener(v -> finish());
     }
 
     private void registrarUsuario() {
@@ -47,27 +51,27 @@ public class RegisterActivity extends AppCompatActivity {
         String confirmPassword = confirmPasswordEditText.getText().toString().trim();
 
         if (nombre.isEmpty()) {
-            nombreEditText.setError("Por favor ingresa tu nombre");
+            nombreEditText.setError("Ingresa tu nombre");
             return;
         }
 
         if (email.isEmpty()) {
-            emailEditText.setError("Por favor ingresa tu email");
+            emailEditText.setError("Ingresa tu email");
             return;
         }
 
         if (!android.util.Patterns.EMAIL_ADDRESS.matcher(email).matches()) {
-            emailEditText.setError("Por favor ingresa un email válido");
+            emailEditText.setError("Email inválido");
             return;
         }
 
         if (password.isEmpty()) {
-            passwordEditText.setError("Por favor ingresa una contraseña");
+            passwordEditText.setError("Ingresa una contraseña");
             return;
         }
 
         if (password.length() < 6) {
-            passwordEditText.setError("La contraseña debe tener al menos 6 caracteres");
+            passwordEditText.setError("Al menos 6 caracteres");
             return;
         }
 
@@ -76,11 +80,29 @@ public class RegisterActivity extends AppCompatActivity {
             return;
         }
 
-        Toast.makeText(this, "Registrándote...", Toast.LENGTH_SHORT).show();
+        Toast.makeText(this, "Creando cuenta...", Toast.LENGTH_SHORT).show();
 
-        Intent intent = new Intent(RegisterActivity.this, MainActivity.class);
-        startActivity(intent);
-        finish();
-        overridePendingTransition(android.R.anim.fade_in, android.R.anim.fade_out);
+        auth.createUserWithEmailAndPassword(email, password)
+                .addOnSuccessListener(result -> {
+                    String userId = auth.getCurrentUser().getUid();
+
+                    // Guardar el nombre en Firestore
+                    HashMap<String, Object> datos = new HashMap<>();
+                    datos.put("nombre", nombre);
+                    datos.put("email", email);
+
+                    firestore.collection("usuarios")
+                            .document(userId)
+                            .set(datos)
+                            .addOnSuccessListener(aVoid -> {
+                                Toast.makeText(this, "Registro exitoso", Toast.LENGTH_SHORT).show();
+
+                                startActivity(new Intent(RegisterActivity.this, MainActivity.class));
+                                finish();
+                            });
+                })
+                .addOnFailureListener(e ->
+                        Toast.makeText(this, "Error: " + e.getMessage(), Toast.LENGTH_LONG).show()
+                );
     }
 }
