@@ -62,11 +62,11 @@ public class RecipeDetailActivity extends AppCompatActivity {
             if (recipeImageUrl != null && recipeImageUrl.startsWith("http")) {
                 Glide.with(this)
                         .load(recipeImageUrl)
-                        .placeholder(R.drawable.nofoto)
-                        .error(R.drawable.nofoto)
+                        .placeholder(R.drawable.nofot)
+                        .error(R.drawable.nofot)
                         .into(recipeImageView);
             } else {
-                recipeImageView.setImageResource(R.drawable.nofoto);
+                recipeImageView.setImageResource(R.drawable.nofot);
             }
 
             recipeNameTextView.setText(recipeName);

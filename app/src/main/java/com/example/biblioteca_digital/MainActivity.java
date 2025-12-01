@@ -73,7 +73,6 @@ public class MainActivity extends AppCompatActivity {
 
         cargarRecetasDesdeFirestore();
     }
-
     private void cargarRecetasDesdeFirestore() {
         FirebaseFirestore db = FirebaseFirestore.getInstance();
         db.collection("recetas").get()
@@ -135,7 +134,6 @@ public class MainActivity extends AppCompatActivity {
         getMenuInflater().inflate(R.menu.menu_toolbar, menu);
         return true;
     }
-
     @Override
     public boolean onOptionsItemSelected(MenuItem item) {
         int id = item.getItemId();

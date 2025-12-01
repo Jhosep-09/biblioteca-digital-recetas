@@ -81,8 +81,8 @@ public class RecipeAdapter extends RecyclerView.Adapter<RecipeAdapter.RecipeView
                 // Cargar desde URL usando Glide
                 Glide.with(context)
                         .load(imagen)
-                        .placeholder(R.drawable.nofoto)   // imagen mientras carga
-                        .error(R.drawable.nofoto)         // si falla la URL
+                        .placeholder(R.drawable.nofot)   // imagen mientras carga
+                        .error(R.drawable.nofot)         // si falla la URL
                         .into(imagenReceta);
 
             } else {
@@ -93,7 +93,7 @@ public class RecipeAdapter extends RecyclerView.Adapter<RecipeAdapter.RecipeView
                 if (resId != 0) {
                     imagenReceta.setImageResource(resId);
                 } else {
-                    imagenReceta.setImageResource(R.drawable.nofoto); // por defecto
+                    imagenReceta.setImageResource(R.drawable.nofot); // por defecto
                 }
             }
 
