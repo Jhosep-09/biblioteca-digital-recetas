@@ -2,84 +2,93 @@
 <ScrollView xmlns:android="http://schemas.android.com/apk/res/android"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    android:background="#F5F5F5">
+    android:background="#FFF7F7"> <!-- Fondo suave rojizo -->
 
     <LinearLayout
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:orientation="vertical">
 
+        <!-- Botón Volver -->
         <Button
             android:id="@+id/backButton"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:text="← Volver"
-            android:layout_margin="8dp"
-            android:background="#1976D2"
-            android:textColor="@android:color/white" />
+            android:layout_margin="12dp"
+            android:paddingLeft="16dp"
+            android:paddingRight="16dp"
+            android:background="#C62828"
+            android:textColor="@android:color/white"
+            android:elevation="4dp" />
 
+        <!-- Imagen -->
         <ImageView
             android:id="@+id/recipeImageView"
             android:layout_width="match_parent"
-            android:layout_height="250dp"
+            android:layout_height="260dp"
             android:scaleType="centerCrop"
-            android:contentDescription="Imagen de receta" />
+            android:contentDescription="Imagen de receta"
+            android:background="#E0E0E0" />
 
+        <!-- Información principal -->
         <LinearLayout
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:orientation="vertical"
-            android:padding="16dp">
+            android:padding="20dp">
 
             <TextView
                 android:id="@+id/recipeNameTextView"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:textSize="28sp"
+                android:textSize="30sp"
                 android:textStyle="bold"
-                android:textColor="#212121"
+                android:textColor="#B71C1C"
                 android:layout_marginBottom="8dp" />
 
             <TextView
                 android:id="@+id/recipeCategoryTextView"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:textSize="14sp"
-                android:textColor="#757575"
-                android:layout_marginBottom="8dp" />
+                android:textSize="15sp"
+                android:textColor="#8D6E63"
+                android:layout_marginBottom="6dp" />
 
             <TextView
                 android:id="@+id/recipeTimeTextView"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:textSize="14sp"
-                android:textColor="#757575"
-                android:layout_marginBottom="8dp" />
+                android:textSize="15sp"
+                android:textColor="#8D6E63"
+                android:layout_marginBottom="6dp" />
 
             <TextView
                 android:id="@+id/recipeDifficultyTextView"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:textSize="14sp"
-                android:textColor="#757575"
+                android:textSize="15sp"
+                android:textColor="#8D6E63"
                 android:layout_marginBottom="16dp" />
 
             <TextView
                 android:id="@+id/recipeDescriptionTextView"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:textSize="16sp"
-                android:textColor="#212121"
+                android:textSize="17sp"
+                android:textColor="#4E342E"
+                android:lineSpacingExtra="4dp"
                 android:layout_marginBottom="16dp" />
         </LinearLayout>
 
+        <!-- Ingredientes -->
         <TextView
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:text="Ingredientes:"
             android:textStyle="bold"
-            android:textSize="18sp"
-            android:textColor="#212121"
+            android:textSize="20sp"
+            android:textColor="#B71C1C"
             android:padding="16dp"
             android:paddingBottom="8dp" />
 
@@ -88,39 +97,46 @@
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:enabled="false"
-            android:layout_marginStart="16dp"
-            android:layout_marginEnd="16dp" />
+            android:divider="#FFCDD2"
+            android:dividerHeight="1dp"
+            android:layout_marginStart="20dp"
+            android:layout_marginEnd="20dp" />
 
+        <!-- Pasos -->
         <TextView
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:text="Pasos de Preparación:"
             android:textStyle="bold"
-            android:textSize="18sp"
-            android:textColor="#212121"
+            android:textSize="20sp"
+            android:textColor="#B71C1C"
             android:padding="16dp"
-            android:paddingBottom="8dp"
-            android:paddingTop="24dp" />
+            android:paddingTop="24dp"
+            android:paddingBottom="8dp" />
 
         <ListView
             android:id="@+id/stepsListView"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:enabled="false"
-            android:layout_marginStart="16dp"
-            android:layout_marginEnd="16dp"
+            android:divider="#FFCDD2"
+            android:dividerHeight="1dp"
+            android:layout_marginStart="20dp"
+            android:layout_marginEnd="20dp"
             android:layout_marginBottom="16dp" />
 
+        <!-- Botón favoritos -->
         <Button
             android:id="@+id/addFavoriteButton"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:text="🤍 Agregar a Favoritos"
-            android:layout_margin="16dp"
-            android:padding="16dp"
-            android:background="#1976D2"
+            android:layout_margin="20dp"
+            android:padding="18dp"
+            android:background="#C62828"
             android:textColor="@android:color/white"
-            android:textSize="16sp" />
+            android:textSize="17sp"
+            android:elevation="4dp" />
 
     </LinearLayout>
 
