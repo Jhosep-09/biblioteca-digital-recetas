@@ -69,7 +69,7 @@ public class MainActivity extends AppCompatActivity {
             return true;
 
         } else if (id == R.id.menu_perfil) {
-            Toast.makeText(this, "Perfil: Usuario Demo", Toast.LENGTH_SHORT).show();
+            Toast.makeText(this, "Perfil: Usuarios Demo", Toast.LENGTH_SHORT).show();
             return true;
 
         } else if (id == R.id.menu_cerrar) {
