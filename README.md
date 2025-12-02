@@ -129,34 +129,30 @@ La app incluye 10 recetas:
 
 ---
 
-## 🔐 Credenciales de Prueba
-```
-Email: usuario@ejemplo.com
-Contraseña: 123456
-```
-
-O puedes crear una nueva cuenta con el formulario de registro.
-
 ---
 
-## 🎯 Próximos Pasos (Hito 2)
+✨ Avances del Proyecto Android con Firebase ✨
+📌 Integración Firebase
+- Creación y configuración inicial de Firebase
+- Diseño de modelo de datos y diagrama de clases
+- Conexión establecida con el proyecto Android
+📌 MainActivity
+- Migración de estático ➝ funcional
+- Menú principal con recetas dinámicas obtenidas desde Firebase
+📌 Recipe & RecipeDetail
+- Conversión de pantallas estáticas ➝ funcionales
+- Implementación de RecyclerView con recetas de Firebase
+- Visualización en tiempo real de recetas existentes en la base de datos
+📌 Autenticación de usuarios
+- Login falso reemplazado por Firebase Auth
+- Registro de usuarios vinculado a Firebase
+- Creación de cuentas y almacenamiento automático en la base de datos
+📌 Gestión de imágenes
+- Se agregó imagen “nofoto” como fallback
+- Aparece cuando falla la llamada a la URL o el campo está vacío
+📌 Mejoras de diseño
+- Optimización de estilos visuales
+- Ajustes en MainActivity y detalle de receta para una mejor experiencia
 
-- [ ] Integración con Firebase Authentication
-- [ ] Base de datos en Firebase Realtime Database
-- [ ] Guardar favoritas en la nube
-- [ ] Cargar imágenes desde Firebase Cloud Storage
-- [ ] Sincronización de datos en múltiples dispositivos
 
----
-
-## ⚠️ Limitaciones Actuales
-
-- ❌ Los favoritas NO se guardan (solo en sesión)
-- ❌ Las imágenes son placeholders
-- ❌ Sin persistencia de datos
-- ⚠️ Datos hardcodeados (sin base de datos)
-
-*Estos se implementarán en Hito 2 con Firebase*
-
-
-**Última actualización:** 16 de Noviembre 2025
+**Última actualización:** 30 de Noviembre 2025

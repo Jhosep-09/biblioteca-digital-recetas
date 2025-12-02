@@ -10,6 +10,7 @@ import androidx.recyclerview.widget.RecyclerView;
 import com.example.biblioteca_digital.Adapters.RecipeAdapter;
 import com.example.biblioteca_digital.Models.Recipe;
 import com.example.biblioteca_digital.R;
+
 import java.util.ArrayList;
 import java.util.List;
 
@@ -30,6 +31,7 @@ public class FavoritesActivity extends AppCompatActivity {
 
         favoritesRecyclerView.setLayoutManager(new LinearLayoutManager(this));
 
+        // ⭐ Recetas simuladas por ahora
         recetasFavoritas = obtenerRecetasFavoritasDeEjemplo();
 
         adapter = new RecipeAdapter(recetasFavoritas, this::abrirDetallesReceta);
@@ -46,15 +48,20 @@ public class FavoritesActivity extends AppCompatActivity {
 
     private void abrirDetallesReceta(Recipe recipe) {
         Intent intent = new Intent(FavoritesActivity.this, RecipeDetailActivity.class);
+
         intent.putExtra("recipeId", recipe.getId());
         intent.putExtra("recipeName", recipe.getNombre());
         intent.putExtra("recipeCategory", recipe.getCategoria());
         intent.putExtra("recipeTime", recipe.getTiempo());
         intent.putExtra("recipeDifficulty", recipe.getDificultad());
-        intent.putExtra("recipeImage", recipe.getImagenResId());
         intent.putExtra("recipeDescription", recipe.getDescripcion());
+
         intent.putStringArrayListExtra("recipeIngredients", new ArrayList<>(recipe.getIngredientes()));
         intent.putStringArrayListExtra("recipeSteps", new ArrayList<>(recipe.getPasos()));
+
+        // Lo mandamos por si luego usas imágenes Firebase
+        intent.putExtra("recipeImage", recipe.getImagenUrl());
+
         startActivity(intent);
         overridePendingTransition(android.R.anim.slide_in_left, android.R.anim.slide_out_right);
     }
@@ -62,8 +69,15 @@ public class FavoritesActivity extends AppCompatActivity {
     private List<Recipe> obtenerRecetasFavoritasDeEjemplo() {
         List<Recipe> recetas = new ArrayList<>();
 
-        Recipe r1 = new Recipe(1, "Pasta Carbonara", "Rápida", "20 min", "Fácil",
-                android.R.drawable.ic_menu_gallery, "Deliciosa pasta a la italiana");
+        Recipe r1 = new Recipe(
+                "1",                                // id como String
+                "Pasta Carbonara",
+                "Rápida",
+                "20 min",
+                "Fácil",
+                "pizza",                      // usamos un nombre de drawable
+                "Deliciosa pasta a la italiana"
+        );
         r1.agregarIngrediente("200g de pasta");
         r1.agregarIngrediente("100g de panceta");
         r1.agregarIngrediente("3 huevos");
@@ -75,8 +89,15 @@ public class FavoritesActivity extends AppCompatActivity {
         r1.setEsFavorita(true);
         recetas.add(r1);
 
-        Recipe r2 = new Recipe(3, "Brownies de Chocolate", "Postres", "45 min", "Medio",
-                android.R.drawable.ic_menu_gallery, "Brownies deliciosos y esponjosos");
+        Recipe r2 = new Recipe(
+                "2",
+                "Brownies de Chocolate",
+                "Postres",
+                "45 min",
+                "Medio",
+                "pizza",
+                "Brownies deliciosos y esponjosos"
+        );
         r2.agregarIngrediente("200g de chocolate");
         r2.agregarIngrediente("150g de mantequilla");
         r2.agregarIngrediente("200g de harina");
@@ -88,8 +109,15 @@ public class FavoritesActivity extends AppCompatActivity {
         r2.setEsFavorita(true);
         recetas.add(r2);
 
-        Recipe r3 = new Recipe(5, "Pollo al Limón", "Rápida", "30 min", "Medio",
-                android.R.drawable.ic_menu_gallery, "Pollo jugoso y sabroso");
+        Recipe r3 = new Recipe(
+                "3",
+                "Pollo al Limón",
+                "Rápida",
+                "30 min",
+                "Medio",
+                "pizza",
+                "Pollo jugoso y sabroso"
+        );
         r3.agregarIngrediente("600g de pechuga de pollo");
         r3.agregarIngrediente("3 limones");
         r3.agregarIngrediente("Ajo");

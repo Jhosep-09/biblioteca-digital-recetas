@@ -7,9 +7,12 @@ import android.widget.ImageView;
 import android.widget.ListView;
 import android.widget.TextView;
 import android.widget.Toast;
+
 import androidx.appcompat.app.AppCompatActivity;
 
+import com.bumptech.glide.Glide;
 import com.example.biblioteca_digital.R;
+
 import java.util.ArrayList;
 
 public class RecipeDetailActivity extends AppCompatActivity {
@@ -45,30 +48,44 @@ public class RecipeDetailActivity extends AppCompatActivity {
 
         Bundle extras = getIntent().getExtras();
         if (extras != null) {
-            int recipeId = extras.getInt("recipeId");
+
             String recipeName = extras.getString("recipeName");
             String recipeCategory = extras.getString("recipeCategory");
             String recipeTime = extras.getString("recipeTime");
             String recipeDifficulty = extras.getString("recipeDifficulty");
-            int recipeImage = extras.getInt("recipeImage");
             String recipeDescription = extras.getString("recipeDescription");
+            String recipeImageUrl = extras.getString("recipeImageUrl"); // URL desde Firebase
             ArrayList<String> ingredients = extras.getStringArrayList("recipeIngredients");
             ArrayList<String> steps = extras.getStringArrayList("recipeSteps");
 
-            recipeImageView.setImageResource(recipeImage);
+            // ⭐ Cargar imagen desde URL o drawable por defecto
+            if (recipeImageUrl != null && recipeImageUrl.startsWith("http")) {
+                Glide.with(this)
+                        .load(recipeImageUrl)
+                        .placeholder(R.drawable.nofot)
+                        .error(R.drawable.nofot)
+                        .into(recipeImageView);
+            } else {
+                recipeImageView.setImageResource(R.drawable.nofot);
+            }
+
             recipeNameTextView.setText(recipeName);
             recipeCategoryTextView.setText("Categoría: " + recipeCategory);
             recipeTimeTextView.setText("⏱️ " + recipeTime);
             recipeDifficultyTextView.setText("Dificultad: " + recipeDifficulty);
             recipeDescriptionTextView.setText(recipeDescription);
 
+            // INGREDIENTES
             if (ingredients != null && !ingredients.isEmpty()) {
-                SimpleListAdapter ingredientAdapter = new SimpleListAdapter(this, ingredients, "Ingredientes");
+                SimpleListAdapter ingredientAdapter =
+                        new SimpleListAdapter(this, ingredients, "Ingredientes");
                 ingredientsListView.setAdapter(ingredientAdapter);
             }
 
+            // PASOS
             if (steps != null && !steps.isEmpty()) {
-                SimpleListAdapter stepsAdapter = new SimpleListAdapter(this, steps, "Pasos");
+                SimpleListAdapter stepsAdapter =
+                        new SimpleListAdapter(this, steps, "Pasos");
                 stepsListView.setAdapter(stepsAdapter);
             }
         }
@@ -82,18 +99,17 @@ public class RecipeDetailActivity extends AppCompatActivity {
 
         if (isFavorite) {
             addFavoriteButton.setText("❤️ Quitar de Favoritos");
-            addFavoriteButton.setBackgroundColor(getResources().getColor(android.R.color.holo_red_light));
             Toast.makeText(this, "Agregado a favoritos", Toast.LENGTH_SHORT).show();
         } else {
             addFavoriteButton.setText("🤍 Agregar a Favoritos");
-            addFavoriteButton.setBackgroundColor(getResources().getColor(android.R.color.holo_blue_light));
             Toast.makeText(this, "Removido de favoritos", Toast.LENGTH_SHORT).show();
         }
     }
 
+    // Adapter para mostrar listas simples
     public static class SimpleListAdapter extends android.widget.ArrayAdapter<String> {
-        private ArrayList<String> items;
-        private String type;
+        private final ArrayList<String> items;
+        private final String type;
 
         public SimpleListAdapter(android.content.Context context, ArrayList<String> items, String type) {
             super(context, android.R.layout.simple_list_item_1, items);
