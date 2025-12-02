@@ -8,6 +8,7 @@ import android.text.TextWatcher;
 import android.widget.EditText;
 import android.widget.RadioButton;
 import android.widget.RadioGroup;
+import android.widget.Toast;
 
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.recyclerview.widget.GridLayoutManager;
@@ -19,6 +20,7 @@ import com.example.biblioteca_digital.R;
 import com.google.firebase.firestore.FirebaseFirestore;
 import com.google.firebase.firestore.QueryDocumentSnapshot;
 
+import java.text.Normalizer;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -54,13 +56,11 @@ public class SearchActivity extends AppCompatActivity {
         adapter = new RecipeAdapter(recetasFiltradas, this::abrirDetallesReceta);
         recipesRecyclerView.setAdapter(adapter);
 
-        // Inicializar Firestore
         db = FirebaseFirestore.getInstance();
 
-        // Cargar datos desde Firebase
         cargarRecetasDesdeFirebase();
 
-        // Búsqueda
+        // BÚSQUEDA
         searchEditText.addTextChangedListener(new TextWatcher() {
             @Override public void beforeTextChanged(CharSequence s, int start, int count, int after) {}
             @Override public void afterTextChanged(Editable s) {}
@@ -71,11 +71,10 @@ public class SearchActivity extends AppCompatActivity {
             }
         });
 
-        // Filtros
-        filterRadioGroup.setOnCheckedChangeListener((group, checkedId) -> aplicarFiltros());
+        // FILTROS
+        filterRadioGroup.setOnCheckedChangeListener((group, id) -> aplicarFiltros());
     }
 
-    // Leer Firebase
     private void cargarRecetasDesdeFirebase() {
         db.collection("recetas")
                 .get()
@@ -84,28 +83,21 @@ public class SearchActivity extends AppCompatActivity {
                     todasLasRecetas.clear();
 
                     for (QueryDocumentSnapshot doc : query) {
-
                         Recipe receta = new Recipe();
 
-                        // 🔥 ID del documento (string)
                         receta.setId(doc.getId());
-
                         receta.setNombre(doc.getString("nombre"));
                         receta.setCategoria(doc.getString("categoria"));
                         receta.setTiempo(doc.getString("tiempo"));
                         receta.setDificultad(doc.getString("dificultad"));
                         receta.setDescripcion(doc.getString("descripcion"));
-
-                        // 🔥 URL de imagen desde Firestore
                         receta.setImagenUrl(doc.getString("imagenUrl"));
 
-                        // Ingredientes
-                        List<String> ingredientes = (List<String>) doc.get("ingredientes");
-                        if (ingredientes != null) receta.setIngredientes(ingredientes);
+                        List<String> ing = (List<String>) doc.get("ingredientes");
+                        receta.setIngredientes(ing != null ? ing : new ArrayList<>());
 
-                        // Pasos
-                        List<String> pasos = (List<String>) doc.get("pasos");
-                        if (pasos != null) receta.setPasos(pasos);
+                        List<String> pas = (List<String>) doc.get("pasos");
+                        receta.setPasos(pas != null ? pas : new ArrayList<>());
 
                         todasLasRecetas.add(receta);
                     }
@@ -113,20 +105,32 @@ public class SearchActivity extends AppCompatActivity {
                     recetasFiltradas.clear();
                     recetasFiltradas.addAll(todasLasRecetas);
                     adapter.notifyDataSetChanged();
-                });
+
+                })
+                .addOnFailureListener(e ->
+                        Toast.makeText(this, "Error cargando recetas", Toast.LENGTH_SHORT).show()
+                );
     }
 
     private void filtrarRecetas(String termino) {
-        String filterCategoria = obtenerCategoriaSelecionada();
+
+        termino = normalizar(termino);
+
+        String categoria = obtenerCategoriaSeleccionada();
+
         recetasFiltradas.clear();
 
-        for (Recipe recipe : todasLasRecetas) {
-            boolean coincideNombre = recipe.getNombre().toLowerCase().contains(termino.toLowerCase());
-            boolean coincideCategoria = filterCategoria.equals("Todas") ||
-                    recipe.getCategoria().equals(filterCategoria);
+        for (Recipe r : todasLasRecetas) {
+
+            String nombreNormalizado = normalizar(r.getNombre() != null ? r.getNombre() : "");
+            String categoriaReceta = r.getCategoria() != null ? r.getCategoria() : "";
+
+            boolean coincideNombre = nombreNormalizado.contains(termino);
+            boolean coincideCategoria = categoria.equals("Todas") ||
+                    categoriaReceta.equalsIgnoreCase(categoria);
 
             if (coincideNombre && coincideCategoria) {
-                recetasFiltradas.add(recipe);
+                recetasFiltradas.add(r);
             }
         }
 
@@ -137,15 +141,23 @@ public class SearchActivity extends AppCompatActivity {
         filtrarRecetas(searchEditText.getText().toString());
     }
 
-    private String obtenerCategoriaSelecionada() {
-        int selectedId = filterRadioGroup.getCheckedRadioButtonId();
+    private String obtenerCategoriaSeleccionada() {
+        int id = filterRadioGroup.getCheckedRadioButtonId();
 
-        if (selectedId == R.id.filterVegetarian) return "Vegetariana";
-        else if (selectedId == R.id.filterFast) return "Rápida";
-        else if (selectedId == R.id.filterDesserts) return "Postres";
+        if (id == R.id.filterVegetarian) return "Vegetariana";
+        if (id == R.id.filterFast) return "Rápida";
+        if (id == R.id.filterDesserts) return "Postres";
 
         return "Todas";
     }
+
+
+    private String normalizar(String texto) {
+        texto = texto.toLowerCase();
+        return Normalizer.normalize(texto, Normalizer.Form.NFD)
+                .replaceAll("\\p{InCombiningDiacriticalMarks}+", "");
+    }
+
 
     private void abrirDetallesReceta(Recipe recipe) {
         Intent intent = new Intent(SearchActivity.this, RecipeDetailActivity.class);
@@ -156,8 +168,10 @@ public class SearchActivity extends AppCompatActivity {
         intent.putExtra("recipeDifficulty", recipe.getDificultad());
         intent.putExtra("recipeImage", recipe.getImagenUrl());
         intent.putExtra("recipeDescription", recipe.getDescripcion());
-        intent.putStringArrayListExtra("recipeIngredients", new ArrayList<>(recipe.getIngredientes()));
-        intent.putStringArrayListExtra("recipeSteps", new ArrayList<>(recipe.getPasos()));
+        intent.putStringArrayListExtra("recipeIngredients",
+                new ArrayList<>(recipe.getIngredientes()));
+        intent.putStringArrayListExtra("recipeSteps",
+                new ArrayList<>(recipe.getPasos()));
         startActivity(intent);
     }
 }

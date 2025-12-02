@@ -2,25 +2,40 @@
 <ScrollView xmlns:android="http://schemas.android.com/apk/res/android"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    android:background="#FFF7F7"> <!-- Fondo suave rojizo -->
+    android:background="#FFF7F7">
 
     <LinearLayout
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:orientation="vertical">
 
-        <!-- Botón Volver -->
-        <Button
-            android:id="@+id/backButton"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:text="← Volver"
-            android:layout_margin="12dp"
-            android:paddingLeft="16dp"
-            android:paddingRight="16dp"
-            android:background="#C62828"
-            android:textColor="@android:color/white"
-            android:elevation="4dp" />
+        <!-- Sección superior: Volver y Favorito -->
+        <RelativeLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content">
+
+            <Button
+                android:id="@+id/backButton"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="← Volver"
+                android:layout_margin="12dp"
+                android:paddingLeft="16dp"
+                android:paddingRight="16dp"
+                android:background="#C62828"
+                android:textColor="@android:color/white"
+                android:elevation="4dp" />
+
+            <ImageView
+                android:id="@+id/btnFavorite"
+                android:layout_width="38dp"
+                android:layout_height="38dp"
+                android:src="@drawable/ic_favorite_border"
+                android:layout_alignParentRight="true"
+                android:layout_centerVertical="true"
+                android:layout_margin="12dp"
+                android:padding="6dp" />
+        </RelativeLayout>
 
         <!-- Imagen -->
         <ImageView
@@ -28,10 +43,9 @@
             android:layout_width="match_parent"
             android:layout_height="260dp"
             android:scaleType="centerCrop"
-            android:contentDescription="Imagen de receta"
             android:background="#E0E0E0" />
 
-        <!-- Información principal -->
+        <!-- Información -->
         <LinearLayout
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
@@ -96,7 +110,6 @@
             android:id="@+id/ingredientsListView"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:enabled="false"
             android:divider="#FFCDD2"
             android:dividerHeight="1dp"
             android:layout_marginStart="20dp"
@@ -111,32 +124,18 @@
             android:textSize="20sp"
             android:textColor="#B71C1C"
             android:padding="16dp"
-            android:paddingTop="24dp"
-            android:paddingBottom="8dp" />
+            android:paddingBottom="8dp"
+            android:paddingTop="20dp" />
 
         <ListView
             android:id="@+id/stepsListView"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:enabled="false"
             android:divider="#FFCDD2"
             android:dividerHeight="1dp"
             android:layout_marginStart="20dp"
             android:layout_marginEnd="20dp"
             android:layout_marginBottom="16dp" />
-
-        <!-- Botón favoritos -->
-        <Button
-            android:id="@+id/addFavoriteButton"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:text="🤍 Agregar a Favoritos"
-            android:layout_margin="20dp"
-            android:padding="18dp"
-            android:background="#C62828"
-            android:textColor="@android:color/white"
-            android:textSize="17sp"
-            android:elevation="4dp" />
 
     </LinearLayout>
 

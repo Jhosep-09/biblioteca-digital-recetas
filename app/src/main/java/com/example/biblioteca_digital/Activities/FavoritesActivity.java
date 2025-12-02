@@ -2,6 +2,7 @@ package com.example.biblioteca_digital.Activities;
 
 import android.content.Intent;
 import android.os.Bundle;
+import android.view.View;
 import android.widget.TextView;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.recyclerview.widget.LinearLayoutManager;
@@ -37,12 +38,16 @@ public class FavoritesActivity extends AppCompatActivity {
         adapter = new RecipeAdapter(recetasFavoritas, this::abrirDetallesReceta);
         favoritesRecyclerView.setAdapter(adapter);
 
-        if (recetasFavoritas.isEmpty()) {
-            emptyStateTextView.setVisibility(TextView.VISIBLE);
-            favoritesRecyclerView.setVisibility(RecyclerView.GONE);
+        actualizarEstadoVacio();
+    }
+
+    private void actualizarEstadoVacio() {
+        if (recetasFavoritas == null || recetasFavoritas.isEmpty()) {
+            emptyStateTextView.setVisibility(View.VISIBLE);
+            favoritesRecyclerView.setVisibility(View.GONE);
         } else {
-            emptyStateTextView.setVisibility(TextView.GONE);
-            favoritesRecyclerView.setVisibility(RecyclerView.VISIBLE);
+            emptyStateTextView.setVisibility(View.GONE);
+            favoritesRecyclerView.setVisibility(View.VISIBLE);
         }
     }
 
@@ -59,7 +64,6 @@ public class FavoritesActivity extends AppCompatActivity {
         intent.putStringArrayListExtra("recipeIngredients", new ArrayList<>(recipe.getIngredientes()));
         intent.putStringArrayListExtra("recipeSteps", new ArrayList<>(recipe.getPasos()));
 
-        // Lo mandamos por si luego usas imágenes Firebase
         intent.putExtra("recipeImage", recipe.getImagenUrl());
 
         startActivity(intent);
@@ -70,12 +74,12 @@ public class FavoritesActivity extends AppCompatActivity {
         List<Recipe> recetas = new ArrayList<>();
 
         Recipe r1 = new Recipe(
-                "1",                                // id como String
+                "1",
                 "Pasta Carbonara",
                 "Rápida",
                 "20 min",
                 "Fácil",
-                "pizza",                      // usamos un nombre de drawable
+                "pizza",
                 "Deliciosa pasta a la italiana"
         );
         r1.agregarIngrediente("200g de pasta");
@@ -87,7 +91,6 @@ public class FavoritesActivity extends AppCompatActivity {
         r1.agregarPaso("Freír la panceta");
         r1.agregarPaso("Mezclar ingredientes");
         r1.setEsFavorita(true);
-        recetas.add(r1);
 
         Recipe r2 = new Recipe(
                 "2",
@@ -107,7 +110,6 @@ public class FavoritesActivity extends AppCompatActivity {
         r2.agregarPaso("Añadir harina");
         r2.agregarPaso("Hornear 30 minutos");
         r2.setEsFavorita(true);
-        recetas.add(r2);
 
         Recipe r3 = new Recipe(
                 "3",
@@ -127,6 +129,9 @@ public class FavoritesActivity extends AppCompatActivity {
         r3.agregarPaso("Cocinar en sartén");
         r3.agregarPaso("Servir caliente");
         r3.setEsFavorita(true);
+
+        recetas.add(r1);
+        recetas.add(r2);
         recetas.add(r3);
 
         return recetas;
