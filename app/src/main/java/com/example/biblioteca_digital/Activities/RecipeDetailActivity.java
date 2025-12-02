@@ -2,10 +2,10 @@ package com.example.biblioteca_digital.Activities;
 
 import android.annotation.SuppressLint;
 import android.os.Bundle;
-import android.widget.Button;
 import android.widget.ImageView;
 import android.widget.ListView;
 import android.widget.TextView;
+import android.widget.Button;
 import android.widget.Toast;
 
 import androidx.appcompat.app.AppCompatActivity;
@@ -25,8 +25,10 @@ public class RecipeDetailActivity extends AppCompatActivity {
     private TextView recipeDescriptionTextView;
     private ListView ingredientsListView;
     private ListView stepsListView;
-    private Button addFavoriteButton;
+
+    private ImageView btnFavorite;  // ← AHORA usamos este
     private Button backButton;
+
     private boolean isFavorite = false;
 
     @SuppressLint("MissingInflatedId")
@@ -35,6 +37,7 @@ public class RecipeDetailActivity extends AppCompatActivity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_recipe_detail);
 
+        // Obtener vistas
         recipeImageView = findViewById(R.id.recipeImageView);
         recipeNameTextView = findViewById(R.id.recipeNameTextView);
         recipeCategoryTextView = findViewById(R.id.recipeCategoryTextView);
@@ -43,9 +46,11 @@ public class RecipeDetailActivity extends AppCompatActivity {
         recipeDescriptionTextView = findViewById(R.id.recipeDescriptionTextView);
         ingredientsListView = findViewById(R.id.ingredientsListView);
         stepsListView = findViewById(R.id.stepsListView);
-        addFavoriteButton = findViewById(R.id.addFavoriteButton);
         backButton = findViewById(R.id.backButton);
 
+        btnFavorite = findViewById(R.id.btnFavorite); // ← Nuevo botón favorito
+
+        // Recibir datos del intent
         Bundle extras = getIntent().getExtras();
         if (extras != null) {
 
@@ -54,11 +59,11 @@ public class RecipeDetailActivity extends AppCompatActivity {
             String recipeTime = extras.getString("recipeTime");
             String recipeDifficulty = extras.getString("recipeDifficulty");
             String recipeDescription = extras.getString("recipeDescription");
-            String recipeImageUrl = extras.getString("recipeImageUrl"); // URL desde Firebase
+            String recipeImageUrl = extras.getString("recipeImageUrl");
             ArrayList<String> ingredients = extras.getStringArrayList("recipeIngredients");
             ArrayList<String> steps = extras.getStringArrayList("recipeSteps");
 
-            // ⭐ Cargar imagen desde URL o drawable por defecto
+            // Cargar imagen
             if (recipeImageUrl != null && recipeImageUrl.startsWith("http")) {
                 Glide.with(this)
                         .load(recipeImageUrl)
@@ -69,44 +74,50 @@ public class RecipeDetailActivity extends AppCompatActivity {
                 recipeImageView.setImageResource(R.drawable.nofot);
             }
 
+            // Mostrar textos
             recipeNameTextView.setText(recipeName);
             recipeCategoryTextView.setText("Categoría: " + recipeCategory);
             recipeTimeTextView.setText("⏱️ " + recipeTime);
             recipeDifficultyTextView.setText("Dificultad: " + recipeDifficulty);
             recipeDescriptionTextView.setText(recipeDescription);
 
-            // INGREDIENTES
+            // LISTA DE INGREDIENTES
             if (ingredients != null && !ingredients.isEmpty()) {
-                SimpleListAdapter ingredientAdapter =
+                SimpleListAdapter adapterIng =
                         new SimpleListAdapter(this, ingredients, "Ingredientes");
-                ingredientsListView.setAdapter(ingredientAdapter);
+                ingredientsListView.setAdapter(adapterIng);
             }
 
-            // PASOS
+            // LISTA DE PASOS
             if (steps != null && !steps.isEmpty()) {
-                SimpleListAdapter stepsAdapter =
+                SimpleListAdapter adapterSteps =
                         new SimpleListAdapter(this, steps, "Pasos");
-                stepsListView.setAdapter(stepsAdapter);
+                stepsListView.setAdapter(adapterSteps);
             }
         }
 
-        addFavoriteButton.setOnClickListener(v -> toggleFavorite());
+        // ❗ EVENTO DE FAVORITOS
+        btnFavorite.setOnClickListener(v -> toggleFavorite());
+
+        // Botón volver
         backButton.setOnClickListener(v -> finish());
     }
 
+    // Cambia entre corazón vacío ❤️ y corazón lleno 🤍
     private void toggleFavorite() {
         isFavorite = !isFavorite;
 
         if (isFavorite) {
-            addFavoriteButton.setText("❤️ Quitar de Favoritos");
+            btnFavorite.setImageResource(R.drawable.ic_favorite_filled); // icono lleno
             Toast.makeText(this, "Agregado a favoritos", Toast.LENGTH_SHORT).show();
         } else {
-            addFavoriteButton.setText("🤍 Agregar a Favoritos");
+            btnFavorite.setImageResource(R.drawable.ic_favorite_border); // icono vacío
             Toast.makeText(this, "Removido de favoritos", Toast.LENGTH_SHORT).show();
         }
     }
 
-    // Adapter para mostrar listas simples
+
+    // Adaptador simple para las listas
     public static class SimpleListAdapter extends android.widget.ArrayAdapter<String> {
         private final ArrayList<String> items;
         private final String type;
@@ -124,12 +135,12 @@ public class RecipeDetailActivity extends AppCompatActivity {
                         .inflate(android.R.layout.simple_list_item_1, parent, false);
             }
 
-            TextView textView = convertView.findViewById(android.R.id.text1);
+            TextView text = convertView.findViewById(android.R.id.text1);
 
             if (type.equals("Pasos")) {
-                textView.setText((position + 1) + ". " + items.get(position));
+                text.setText((position + 1) + ". " + items.get(position));
             } else {
-                textView.setText("• " + items.get(position));
+                text.setText("• " + items.get(position));
             }
 
             return convertView;
