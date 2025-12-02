@@ -75,8 +75,8 @@ public class RecipeDetailActivity extends AppCompatActivity {
             String recipeDifficulty = extras.getString("recipeDifficulty");
             String recipeDescription = extras.getString("recipeDescription");
             recipeImageUrl = extras.getString("recipeImageUrl"); // URL desde Firebase
-            ArrayList<String> ingredients = extras.getStringArrayList("recipeIngredients");
-            ArrayList<String> steps = extras.getStringArrayList("recipeSteps");
+            ArrayList<String> ingredientes = extras.getStringArrayList("recipeIngredients");
+            ArrayList<String> pasos = extras.getStringArrayList("recipeSteps");
 
             // Cargar imagen desde URL o drawable por defecto
             if (recipeImageUrl != null && recipeImageUrl.startsWith("http")) {
@@ -97,17 +97,25 @@ public class RecipeDetailActivity extends AppCompatActivity {
             recipeDescriptionTextView.setText(recipeDescription != null ? recipeDescription : "");
 
             // INGREDIENTES
-            if (ingredients != null && !ingredients.isEmpty()) {
+            if (ingredientes != null && !ingredientes.isEmpty()) {
                 SimpleListAdapter ingredientAdapter =
-                        new SimpleListAdapter(this, ingredients, "Ingredientes");
+                        new SimpleListAdapter(this, ingredientes, "Ingredientes");
                 ingredientsListView.setAdapter(ingredientAdapter);
+            }
+            android.util.Log.d("RECETA_DETAIL", "INGREDIENTES adapter count=" + ingredientsListView.getCount());
+            for (int i=0;i<ingredientsListView.getCount();i++){
+                android.util.Log.d("RECETA_DETAIL", "INGREDIENTE["+i+"]=" + ingredientsListView.getItemAtPosition(i));
             }
 
             // PASOS
-            if (steps != null && !steps.isEmpty()) {
+            if (pasos != null && !pasos.isEmpty()) {
                 SimpleListAdapter stepsAdapter =
-                        new SimpleListAdapter(this, steps, "Pasos");
+                        new SimpleListAdapter(this, pasos, "Pasos");
                 stepsListView.setAdapter(stepsAdapter);
+            }
+            android.util.Log.d("RECETA_DETAIL", "PASOS adapter count=" + stepsListView.getCount());
+            for (int i=0;i<stepsListView.getCount();i++){
+                android.util.Log.d("RECETA_DETAIL", "PASO["+i+"]=" + stepsListView.getItemAtPosition(i));
             }
         }
 

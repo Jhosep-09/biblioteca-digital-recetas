@@ -21,7 +21,7 @@ public class RecipeAdapter extends RecyclerView.Adapter<RecipeAdapter.RecipeView
 
     private List<Recipe> recetas;
     private OnRecipeClickListener onRecipeClickListener;
-    private Context context;  // NECESARIO para obtener drawables
+    private Context context;
 
     public interface OnRecipeClickListener {
         void onRecipeClick(Recipe recipe);
@@ -45,6 +45,10 @@ public class RecipeAdapter extends RecyclerView.Adapter<RecipeAdapter.RecipeView
     @Override
     public void onBindViewHolder(@NonNull RecipeViewHolder holder, int position) {
         Recipe recipe = recetas.get(position);
+        android.util.Log.d("DEBUG_RECETA_CLICK",
+                "ID=" + recipe.getId()
+                        + " | ingredientes.size=" + (recipe.getIngredientes() == null ? "null" : recipe.getIngredientes().size())
+                        + " | pasos.size=" + (recipe.getPasos() == null ? "null" : recipe.getPasos().size()));
         holder.bind(recipe, onRecipeClickListener, context);
     }
 

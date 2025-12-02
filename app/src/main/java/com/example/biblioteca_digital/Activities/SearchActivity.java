@@ -91,7 +91,6 @@ public class SearchActivity extends AppCompatActivity {
 
                         // ID del documento
                         receta.setId(doc.getId());
-
                         // Usar los nombres de campo que tienes en Firestore
                         receta.setNombre(doc.getString("titulo"));
                         receta.setCategoria(doc.getString("tipo"));
