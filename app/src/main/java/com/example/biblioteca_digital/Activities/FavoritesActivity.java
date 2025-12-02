@@ -3,6 +3,8 @@ package com.example.biblioteca_digital.Activities;
 import android.content.Intent;
 import android.os.Bundle;
 import android.widget.TextView;
+import android.widget.Toast;
+
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
@@ -10,9 +12,14 @@ import androidx.recyclerview.widget.RecyclerView;
 import com.example.biblioteca_digital.Adapters.RecipeAdapter;
 import com.example.biblioteca_digital.Models.Recipe;
 import com.example.biblioteca_digital.R;
+import com.google.firebase.auth.FirebaseAuth;
+import com.google.firebase.firestore.DocumentSnapshot;
+import com.google.firebase.firestore.FirebaseFirestore;
+import com.google.firebase.firestore.QueryDocumentSnapshot;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Map;
 
 public class FavoritesActivity extends AppCompatActivity {
 
@@ -20,6 +27,10 @@ public class FavoritesActivity extends AppCompatActivity {
     private RecipeAdapter adapter;
     private TextView emptyStateTextView;
     private List<Recipe> recetasFavoritas;
+
+    // Firebase
+    private FirebaseAuth auth;
+    private FirebaseFirestore db;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -31,104 +42,125 @@ public class FavoritesActivity extends AppCompatActivity {
 
         favoritesRecyclerView.setLayoutManager(new LinearLayoutManager(this));
 
-        // ⭐ Recetas simuladas por ahora
-        recetasFavoritas = obtenerRecetasFavoritasDeEjemplo();
+        auth = FirebaseAuth.getInstance();
+        db = FirebaseFirestore.getInstance();
 
+        recetasFavoritas = new ArrayList<>();
         adapter = new RecipeAdapter(recetasFavoritas, this::abrirDetallesReceta);
         favoritesRecyclerView.setAdapter(adapter);
 
-        if (recetasFavoritas.isEmpty()) {
-            emptyStateTextView.setVisibility(TextView.VISIBLE);
-            favoritesRecyclerView.setVisibility(RecyclerView.GONE);
-        } else {
-            emptyStateTextView.setVisibility(TextView.GONE);
-            favoritesRecyclerView.setVisibility(RecyclerView.VISIBLE);
-        }
+        cargarFavoritosDesdeFirestore();
     }
 
     private void abrirDetallesReceta(Recipe recipe) {
         Intent intent = new Intent(FavoritesActivity.this, RecipeDetailActivity.class);
 
+        // Pasar recipeId y resto de extras (RecipeDetailActivity usa recipeId para favoritos)
         intent.putExtra("recipeId", recipe.getId());
         intent.putExtra("recipeName", recipe.getNombre());
         intent.putExtra("recipeCategory", recipe.getCategoria());
         intent.putExtra("recipeTime", recipe.getTiempo());
         intent.putExtra("recipeDifficulty", recipe.getDificultad());
         intent.putExtra("recipeDescription", recipe.getDescripcion());
-
+        intent.putExtra("recipeImageUrl", recipe.getImagenUrl());
         intent.putStringArrayListExtra("recipeIngredients", new ArrayList<>(recipe.getIngredientes()));
         intent.putStringArrayListExtra("recipeSteps", new ArrayList<>(recipe.getPasos()));
-
-        // Lo mandamos por si luego usas imágenes Firebase
-        intent.putExtra("recipeImage", recipe.getImagenUrl());
 
         startActivity(intent);
         overridePendingTransition(android.R.anim.slide_in_left, android.R.anim.slide_out_right);
     }
 
-    private List<Recipe> obtenerRecetasFavoritasDeEjemplo() {
-        List<Recipe> recetas = new ArrayList<>();
+    private void cargarFavoritosDesdeFirestore() {
+        if (auth.getCurrentUser() == null) {
+            emptyStateTextView.setText("Inicia sesión para ver tus favoritos");
+            emptyStateTextView.setVisibility(TextView.VISIBLE);
+            favoritesRecyclerView.setVisibility(RecyclerView.GONE);
+            return;
+        }
 
-        Recipe r1 = new Recipe(
-                "1",                                // id como String
-                "Pasta Carbonara",
-                "Rápida",
-                "20 min",
-                "Fácil",
-                "pizza",                      // usamos un nombre de drawable
-                "Deliciosa pasta a la italiana"
-        );
-        r1.agregarIngrediente("200g de pasta");
-        r1.agregarIngrediente("100g de panceta");
-        r1.agregarIngrediente("3 huevos");
-        r1.agregarIngrediente("Queso parmesano");
-        r1.agregarPaso("Hervir agua con sal");
-        r1.agregarPaso("Cocinar la pasta");
-        r1.agregarPaso("Freír la panceta");
-        r1.agregarPaso("Mezclar ingredientes");
-        r1.setEsFavorita(true);
-        recetas.add(r1);
+        String uid = auth.getCurrentUser().getUid();
+        db.collection("usuarios").document(uid).collection("favorites")
+                .get()
+                .addOnSuccessListener(query -> {
+                    recetasFavoritas.clear();
 
-        Recipe r2 = new Recipe(
-                "2",
-                "Brownies de Chocolate",
-                "Postres",
-                "45 min",
-                "Medio",
-                "pizza",
-                "Brownies deliciosos y esponjosos"
-        );
-        r2.agregarIngrediente("200g de chocolate");
-        r2.agregarIngrediente("150g de mantequilla");
-        r2.agregarIngrediente("200g de harina");
-        r2.agregarIngrediente("4 huevos");
-        r2.agregarPaso("Derretir chocolate y mantequilla");
-        r2.agregarPaso("Mezclar huevos");
-        r2.agregarPaso("Añadir harina");
-        r2.agregarPaso("Hornear 30 minutos");
-        r2.setEsFavorita(true);
-        recetas.add(r2);
+                    List<String> recipeIdsToFetch = new ArrayList<>();
+                    List<DocumentSnapshot> favoriteDocs = new ArrayList<>();
 
-        Recipe r3 = new Recipe(
-                "3",
-                "Pollo al Limón",
-                "Rápida",
-                "30 min",
-                "Medio",
-                "pizza",
-                "Pollo jugoso y sabroso"
-        );
-        r3.agregarIngrediente("600g de pechuga de pollo");
-        r3.agregarIngrediente("3 limones");
-        r3.agregarIngrediente("Ajo");
-        r3.agregarIngrediente("Aceite de oliva");
-        r3.agregarPaso("Preparar marinada");
-        r3.agregarPaso("Dejar reposar el pollo");
-        r3.agregarPaso("Cocinar en sartén");
-        r3.agregarPaso("Servir caliente");
-        r3.setEsFavorita(true);
-        recetas.add(r3);
+                    for (QueryDocumentSnapshot favDoc : query) {
+                        favoriteDocs.add(favDoc);
+                        String recipeId = favDoc.getString("recipeId");
+                        if (recipeId != null) recipeIdsToFetch.add(recipeId);
+                    }
 
-        return recetas;
+                    if (recipeIdsToFetch.isEmpty()) {
+                        // no hay favoritos
+                        emptyStateTextView.setText("No tienes favoritos aún");
+                        emptyStateTextView.setVisibility(TextView.VISIBLE);
+                        favoritesRecyclerView.setVisibility(RecyclerView.GONE);
+                        return;
+                    }
+
+                    // Por cada recipeId: obtener documento de recetas y construir Recipe
+                    for (DocumentSnapshot favDoc : favoriteDocs) {
+                        String recipeId = favDoc.getString("recipeId");
+                        if (recipeId == null) continue;
+
+                        // Intenta obtener la receta completa desde "recetas/{id}"
+                        db.collection("recetas").document(recipeId).get()
+                                .addOnSuccessListener(doc -> {
+                                    if (doc != null && doc.exists()) {
+                                        Recipe receta = new Recipe();
+                                        receta.setId(doc.getId());
+                                        receta.setNombre(doc.getString("titulo"));
+                                        receta.setCategoria(doc.getString("tipo"));
+                                        receta.setTiempo(doc.getString("tiempo"));
+                                        receta.setDificultad(doc.getString("dificultad"));
+                                        receta.setDescripcion(doc.getString("descripcion"));
+                                        receta.setImagenUrl(doc.getString("imagen"));
+
+                                        // INGREDIENTES
+                                        List<String> ingredientesList = new ArrayList<>();
+                                        if (doc.contains("ingredientes")) {
+                                            Map<String, Object> ingMap = (Map<String, Object>) doc.get("ingredientes");
+                                            for (Object value : ingMap.values()) {
+                                                Map<String, Object> ing = (Map<String, Object>) value;
+                                                String nombre = ing.get("nombre") != null ? ing.get("nombre").toString() : "";
+                                                String cantidad = ing.get("cantidad") != null ? ing.get("cantidad").toString() : "";
+                                                ingredientesList.add((cantidad != null && !cantidad.isEmpty() ? cantidad + " " : "") + nombre);
+                                            }
+                                        }
+                                        receta.setIngredientes(ingredientesList);
+
+                                        // PASOS
+                                        List<String> pasosList = new ArrayList<>();
+                                        if (doc.contains("pasos")) {
+                                            Map<String, Object> pasosMap = (Map<String, Object>) doc.get("pasos");
+                                            for (Object value : pasosMap.values()) {
+                                                Map<String, Object> paso = (Map<String, Object>) value;
+                                                String desc = paso.get("descripcion") != null ? paso.get("descripcion").toString() : "";
+                                                pasosList.add(desc);
+                                            }
+                                        }
+                                        receta.setPasos(pasosList);
+
+                                        receta.setEsFavorita(true);
+                                        recetasFavoritas.add(receta);
+                                        adapter.notifyDataSetChanged();
+
+                                        emptyStateTextView.setVisibility(recetasFavoritas.isEmpty() ? TextView.VISIBLE : TextView.GONE);
+                                        favoritesRecyclerView.setVisibility(recetasFavoritas.isEmpty() ? RecyclerView.GONE : RecyclerView.VISIBLE);
+                                    } else {
+                                        // Si la receta no existe (posible inconsistencia), podemos ignorarla o eliminar el favorito.
+                                    }
+                                })
+                                .addOnFailureListener(e -> {
+                                    Toast.makeText(this, "Error cargando receta: " + e.getMessage(), Toast.LENGTH_SHORT).show();
+                                });
+                    }
+                })
+                .addOnFailureListener(e -> {
+                    Toast.makeText(this, "Error cargando favoritos: " + e.getMessage(), Toast.LENGTH_SHORT).show();
+                });
     }
 }

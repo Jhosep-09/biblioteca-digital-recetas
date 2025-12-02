@@ -8,6 +8,7 @@ import android.text.TextWatcher;
 import android.widget.EditText;
 import android.widget.RadioButton;
 import android.widget.RadioGroup;
+import android.widget.Toast;
 
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.recyclerview.widget.GridLayoutManager;
@@ -21,6 +22,7 @@ import com.google.firebase.firestore.QueryDocumentSnapshot;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Map;
 
 public class SearchActivity extends AppCompatActivity {
 
@@ -75,7 +77,7 @@ public class SearchActivity extends AppCompatActivity {
         filterRadioGroup.setOnCheckedChangeListener((group, checkedId) -> aplicarFiltros());
     }
 
-    // Leer Firebase
+    // Leer Firebase (usa los mismos campos que MainActivity)
     private void cargarRecetasDesdeFirebase() {
         db.collection("recetas")
                 .get()
@@ -87,25 +89,43 @@ public class SearchActivity extends AppCompatActivity {
 
                         Recipe receta = new Recipe();
 
-                        // 🔥 ID del documento (string)
+                        // ID del documento
                         receta.setId(doc.getId());
 
-                        receta.setNombre(doc.getString("nombre"));
-                        receta.setCategoria(doc.getString("categoria"));
+                        // Usar los nombres de campo que tienes en Firestore
+                        receta.setNombre(doc.getString("titulo"));
+                        receta.setCategoria(doc.getString("tipo"));
                         receta.setTiempo(doc.getString("tiempo"));
                         receta.setDificultad(doc.getString("dificultad"));
                         receta.setDescripcion(doc.getString("descripcion"));
 
-                        // 🔥 URL de imagen desde Firestore
-                        receta.setImagenUrl(doc.getString("imagenUrl"));
+                        // URL de imagen (campo "imagen")
+                        receta.setImagenUrl(doc.getString("imagen"));
 
-                        // Ingredientes
-                        List<String> ingredientes = (List<String>) doc.get("ingredientes");
-                        if (ingredientes != null) receta.setIngredientes(ingredientes);
+                        // INGREDIENTES (mismo formato que en MainActivity)
+                        List<String> ingredientesList = new ArrayList<>();
+                        if (doc.contains("ingredientes")) {
+                            Map<String, Object> ingMap = (Map<String, Object>) doc.get("ingredientes");
+                            for (Object value : ingMap.values()) {
+                                Map<String, Object> ing = (Map<String, Object>) value;
+                                String nombre = ing.get("nombre") != null ? ing.get("nombre").toString() : "";
+                                String cantidad = ing.get("cantidad") != null ? ing.get("cantidad").toString() : "";
+                                ingredientesList.add((cantidad != null && !cantidad.isEmpty() ? cantidad + " " : "") + nombre);
+                            }
+                        }
+                        receta.setIngredientes(ingredientesList);
 
-                        // Pasos
-                        List<String> pasos = (List<String>) doc.get("pasos");
-                        if (pasos != null) receta.setPasos(pasos);
+                        // PASOS (mismo formato que en MainActivity)
+                        List<String> pasosList = new ArrayList<>();
+                        if (doc.contains("pasos")) {
+                            Map<String, Object> pasosMap = (Map<String, Object>) doc.get("pasos");
+                            for (Object value : pasosMap.values()) {
+                                Map<String, Object> paso = (Map<String, Object>) value;
+                                String desc = paso.get("descripcion") != null ? paso.get("descripcion").toString() : "";
+                                pasosList.add(desc);
+                            }
+                        }
+                        receta.setPasos(pasosList);
 
                         todasLasRecetas.add(receta);
                     }
@@ -113,17 +133,24 @@ public class SearchActivity extends AppCompatActivity {
                     recetasFiltradas.clear();
                     recetasFiltradas.addAll(todasLasRecetas);
                     adapter.notifyDataSetChanged();
-                });
+                })
+                .addOnFailureListener(e ->
+                        Toast.makeText(this, "Error al cargar recetas: " + e.getMessage(), Toast.LENGTH_SHORT).show()
+                );
     }
 
     private void filtrarRecetas(String termino) {
         String filterCategoria = obtenerCategoriaSelecionada();
         recetasFiltradas.clear();
 
+        String terminoLower = termino == null ? "" : termino.toLowerCase();
+
         for (Recipe recipe : todasLasRecetas) {
-            boolean coincideNombre = recipe.getNombre().toLowerCase().contains(termino.toLowerCase());
-            boolean coincideCategoria = filterCategoria.equals("Todas") ||
-                    recipe.getCategoria().equals(filterCategoria);
+            String nombre = recipe.getNombre() != null ? recipe.getNombre() : "";
+            String categoria = recipe.getCategoria() != null ? recipe.getCategoria() : "";
+
+            boolean coincideNombre = nombre.toLowerCase().contains(terminoLower);
+            boolean coincideCategoria = filterCategoria.equals("Todas") || categoria.equals(filterCategoria);
 
             if (coincideNombre && coincideCategoria) {
                 recetasFiltradas.add(recipe);
@@ -148,14 +175,18 @@ public class SearchActivity extends AppCompatActivity {
     }
 
     private void abrirDetallesReceta(Recipe recipe) {
-        Intent intent = new Intent(SearchActivity.this, RecipeDetailActivity.class);
+        Intent intent = new Intent(SearchActivity.this, com.example.biblioteca_digital.Activities.RecipeDetailActivity.class);
+
+        // Pasar recipeId (necesario para favoritos persistentes)
         intent.putExtra("recipeId", recipe.getId());
+        // Mantener las otras extras (coincidentes con RecipeDetailActivity)
         intent.putExtra("recipeName", recipe.getNombre());
         intent.putExtra("recipeCategory", recipe.getCategoria());
         intent.putExtra("recipeTime", recipe.getTiempo());
         intent.putExtra("recipeDifficulty", recipe.getDificultad());
-        intent.putExtra("recipeImage", recipe.getImagenUrl());
         intent.putExtra("recipeDescription", recipe.getDescripcion());
+        // NOTE: RecipeDetailActivity espera "recipeImageUrl"
+        intent.putExtra("recipeImageUrl", recipe.getImagenUrl());
         intent.putStringArrayListExtra("recipeIngredients", new ArrayList<>(recipe.getIngredientes()));
         intent.putStringArrayListExtra("recipeSteps", new ArrayList<>(recipe.getPasos()));
         startActivity(intent);

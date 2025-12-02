@@ -12,8 +12,14 @@ import androidx.appcompat.app.AppCompatActivity;
 
 import com.bumptech.glide.Glide;
 import com.example.biblioteca_digital.R;
+import com.google.firebase.auth.FirebaseAuth;
+import com.google.firebase.firestore.DocumentReference;
+import com.google.firebase.firestore.FieldValue;
+import com.google.firebase.firestore.FirebaseFirestore;
 
 import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.Map;
 
 public class RecipeDetailActivity extends AppCompatActivity {
 
@@ -28,6 +34,14 @@ public class RecipeDetailActivity extends AppCompatActivity {
     private Button addFavoriteButton;
     private Button backButton;
     private boolean isFavorite = false;
+
+    // Firebase
+    private FirebaseFirestore db;
+    private FirebaseAuth auth;
+
+    // Identificadores / datos de la receta (se obtienen desde Intent)
+    private String currentRecipeId;
+    private String recipeImageUrl;
 
     @SuppressLint("MissingInflatedId")
     @Override
@@ -46,34 +60,41 @@ public class RecipeDetailActivity extends AppCompatActivity {
         addFavoriteButton = findViewById(R.id.addFavoriteButton);
         backButton = findViewById(R.id.backButton);
 
+        // Inicializar Firebase
+        auth = FirebaseAuth.getInstance();
+        db = FirebaseFirestore.getInstance();
+
+        // Leer extras (si existen)
         Bundle extras = getIntent().getExtras();
         if (extras != null) {
 
+            currentRecipeId = extras.getString("recipeId"); // asegúrate de mandar este extra
             String recipeName = extras.getString("recipeName");
             String recipeCategory = extras.getString("recipeCategory");
             String recipeTime = extras.getString("recipeTime");
             String recipeDifficulty = extras.getString("recipeDifficulty");
             String recipeDescription = extras.getString("recipeDescription");
-            String recipeImageUrl = extras.getString("recipeImageUrl"); // URL desde Firebase
+            recipeImageUrl = extras.getString("recipeImageUrl"); // URL desde Firebase
             ArrayList<String> ingredients = extras.getStringArrayList("recipeIngredients");
             ArrayList<String> steps = extras.getStringArrayList("recipeSteps");
 
-            // ⭐ Cargar imagen desde URL o drawable por defecto
+            // Cargar imagen desde URL o drawable por defecto
             if (recipeImageUrl != null && recipeImageUrl.startsWith("http")) {
                 Glide.with(this)
                         .load(recipeImageUrl)
                         .placeholder(R.drawable.nofot)
                         .error(R.drawable.nofot)
                         .into(recipeImageView);
+                recipeImageView.setTag(recipeImageUrl);
             } else {
                 recipeImageView.setImageResource(R.drawable.nofot);
             }
 
-            recipeNameTextView.setText(recipeName);
-            recipeCategoryTextView.setText("Categoría: " + recipeCategory);
-            recipeTimeTextView.setText("⏱️ " + recipeTime);
-            recipeDifficultyTextView.setText("Dificultad: " + recipeDifficulty);
-            recipeDescriptionTextView.setText(recipeDescription);
+            recipeNameTextView.setText(recipeName != null ? recipeName : "");
+            recipeCategoryTextView.setText("Categoría: " + (recipeCategory != null ? recipeCategory : ""));
+            recipeTimeTextView.setText("⏱️ " + (recipeTime != null ? recipeTime : ""));
+            recipeDifficultyTextView.setText("Dificultad: " + (recipeDifficulty != null ? recipeDifficulty : ""));
+            recipeDescriptionTextView.setText(recipeDescription != null ? recipeDescription : "");
 
             // INGREDIENTES
             if (ingredients != null && !ingredients.isEmpty()) {
@@ -90,19 +111,70 @@ public class RecipeDetailActivity extends AppCompatActivity {
             }
         }
 
+        // Comprobar si ya es favorito (solo si hay usuario logueado y recipeId)
+        if (auth.getCurrentUser() != null && currentRecipeId != null) {
+            String uid = auth.getCurrentUser().getUid();
+            db.collection("usuarios").document(uid)
+                    .collection("favorites").document(currentRecipeId)
+                    .get().addOnSuccessListener(doc -> {
+                        if (doc != null && doc.exists()) {
+                            isFavorite = true;
+                            addFavoriteButton.setText("Quitar de Favoritos");
+                        } else {
+                            isFavorite = false;
+                            addFavoriteButton.setText("Agregar a Favoritos");
+                        }
+                    }).addOnFailureListener(e -> {
+                        // en caso de fallo, dejar la UI en estado por defecto
+                        isFavorite = false;
+                        addFavoriteButton.setText("Agregar a Favoritos");
+                    });
+        } else {
+            // si no hay usuario o id, mostrar estado por defecto
+            addFavoriteButton.setText("Agregar a Favoritos");
+        }
+
         addFavoriteButton.setOnClickListener(v -> toggleFavorite());
         backButton.setOnClickListener(v -> finish());
     }
 
     private void toggleFavorite() {
-        isFavorite = !isFavorite;
+        if (auth.getCurrentUser() == null || currentRecipeId == null) {
+            Toast.makeText(this, "Debes iniciar sesión para usar favoritos", Toast.LENGTH_SHORT).show();
+            return;
+        }
 
-        if (isFavorite) {
-            addFavoriteButton.setText("❤️ Quitar de Favoritos");
-            Toast.makeText(this, "Agregado a favoritos", Toast.LENGTH_SHORT).show();
+        String uid = auth.getCurrentUser().getUid();
+        DocumentReference favRef = db.collection("usuarios").document(uid)
+                .collection("favorites").document(currentRecipeId);
+
+        if (!isFavorite) {
+            // crear favorito (guardamos copia mínima)
+            Map<String,Object> data = new HashMap<>();
+            data.put("recipeId", currentRecipeId);
+            data.put("titulo", recipeNameTextView.getText().toString());
+            // preferimos la URL si la tenemos
+            String img = recipeImageUrl != null ? recipeImageUrl : (recipeImageView.getTag() != null ? recipeImageView.getTag().toString() : "");
+            data.put("imagen", img);
+            data.put("savedAt", FieldValue.serverTimestamp());
+
+            favRef.set(data).addOnSuccessListener(aVoid -> {
+                isFavorite = true;
+                addFavoriteButton.setText("Quitar de Favoritos");
+                Toast.makeText(this, "Agregado a favoritos", Toast.LENGTH_SHORT).show();
+            }).addOnFailureListener(e ->
+                    Toast.makeText(this, "Error guardando favorito: " + e.getMessage(), Toast.LENGTH_SHORT).show()
+            );
+
         } else {
-            addFavoriteButton.setText("🤍 Agregar a Favoritos");
-            Toast.makeText(this, "Removido de favoritos", Toast.LENGTH_SHORT).show();
+            // eliminar favorito
+            favRef.delete().addOnSuccessListener(aVoid -> {
+                isFavorite = false;
+                addFavoriteButton.setText("Agregar a Favoritos");
+                Toast.makeText(this, "Removido de favoritos", Toast.LENGTH_SHORT).show();
+            }).addOnFailureListener(e ->
+                    Toast.makeText(this, "Error removiendo favorito: " + e.getMessage(), Toast.LENGTH_SHORT).show()
+            );
         }
     }
 

@@ -59,6 +59,8 @@ public class MainActivity extends AppCompatActivity {
         recetas = new ArrayList<>();
         recipeAdapter = new RecipeAdapter(recetas, recipe -> {
             Intent intent = new Intent(MainActivity.this, RecipeDetailActivity.class);
+            // ---- NUEVO: pasar recipeId (necesario para favoritos persistentes) ----
+            intent.putExtra("recipeId", recipe.getId());
             intent.putExtra("recipeName", recipe.getNombre());
             intent.putExtra("recipeCategory", recipe.getCategoria());
             intent.putExtra("recipeTime", recipe.getTiempo());
@@ -96,7 +98,7 @@ public class MainActivity extends AppCompatActivity {
                                 Map<String, Object> ing = (Map<String, Object>) value;
                                 String nombre = ing.get("nombre") != null ? ing.get("nombre").toString() : "";
                                 String cantidad = ing.get("cantidad") != null ? ing.get("cantidad").toString() : "";
-                                ingredientesList.add(cantidad + " " + nombre);
+                                ingredientesList.add((cantidad != null && !cantidad.isEmpty() ? cantidad + " " : "") + nombre);
                             }
                         }
                         receta.setIngredientes(ingredientesList);
