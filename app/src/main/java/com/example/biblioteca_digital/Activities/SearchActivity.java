@@ -5,16 +5,20 @@ import android.content.Intent;
 import android.os.Bundle;
 import android.text.Editable;
 import android.text.TextWatcher;
+import android.view.Menu;
+import android.view.MenuItem;
 import android.widget.EditText;
 import android.widget.RadioButton;
 import android.widget.RadioGroup;
 import android.widget.Toast;
 
 import androidx.appcompat.app.AppCompatActivity;
+import androidx.appcompat.widget.Toolbar;
 import androidx.recyclerview.widget.GridLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
 import com.example.biblioteca_digital.Adapters.RecipeAdapter;
+import com.example.biblioteca_digital.MainActivity;
 import com.example.biblioteca_digital.Models.Recipe;
 import com.example.biblioteca_digital.R;
 import com.google.firebase.firestore.FirebaseFirestore;
@@ -45,6 +49,9 @@ public class SearchActivity extends AppCompatActivity {
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_search);
+
+        Toolbar toolbar = findViewById(R.id.toolbar);
+        setSupportActionBar(toolbar);
 
         searchEditText = findViewById(R.id.searchEditText);
         filterRadioGroup = findViewById(R.id.filterRadioGroup);
@@ -223,5 +230,34 @@ public class SearchActivity extends AppCompatActivity {
         intent.putStringArrayListExtra("recipeIngredients", new ArrayList<>(recipe.getIngredientes()));
         intent.putStringArrayListExtra("recipeSteps", new ArrayList<>(recipe.getPasos()));
         startActivity(intent);
+    }
+
+    @Override
+    public boolean onCreateOptionsMenu(Menu menu) {
+        getMenuInflater().inflate(R.menu.menu_toobar2, menu);
+        return true;
+    }
+    @Override
+    public boolean onOptionsItemSelected(MenuItem item) {
+        int id = item.getItemId();
+
+        if (id == R.id.home) {
+            startActivity(new Intent(this, MainActivity.class));
+            return true;
+        } else if (id == R.id.menu_favoritos) {
+            startActivity(new Intent(this, FavoritesActivity.class));
+            return true;
+        } else if (id == R.id.menu_perfil) {
+            Toast.makeText(this, "Perfil:", Toast.LENGTH_SHORT).show();
+            return true;
+        } else if (id == R.id.menu_cerrar) {
+            Intent intent = new Intent(this, LoginActivity.class);
+            intent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK | Intent.FLAG_ACTIVITY_CLEAR_TASK);
+            startActivity(intent);
+            finish();
+            return true;
+        }
+
+        return super.onOptionsItemSelected(item);
     }
 }

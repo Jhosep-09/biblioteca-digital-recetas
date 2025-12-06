@@ -44,7 +44,7 @@
             android:layout_height="wrap_content"
             android:layout_marginTop="8dp"
             android:layout_marginBottom="32dp"
-            android:text="Bienvenido de nuevo, chef"
+            android:text="Bienvenido de nuevo"
             android:textColor="#757575"
             android:textSize="16sp"
             app:layout_constraintBottom_toTopOf="@+id/emailInputLayout"

@@ -3,9 +3,9 @@
     xmlns:app="http://schemas.android.com/apk/res-auto">
 
     <item
-        android:id="@+id/menu_buscar"
+        android:id="@+id/home"
         android:title="Buscar"
-        android:icon="@drawable/buscar"
+        android:icon="@drawable/home"
         app:showAsAction="always" />
 
     <item
