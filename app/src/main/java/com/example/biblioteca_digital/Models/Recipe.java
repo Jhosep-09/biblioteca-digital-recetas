@@ -7,7 +7,7 @@ public class Recipe {
 
     private String id;
     private String nombre;
-    private String categoria;
+    private String tipo;
     private String tiempo;
     private String dificultad;
     private String imagenUrl;
@@ -21,11 +21,11 @@ public class Recipe {
         pasos = new ArrayList<>();
     }
 
-    public Recipe(String id, String nombre, String categoria, String tiempo,
+    public Recipe(String id, String nombre, String tipo, String tiempo,
                   String dificultad, String imagenUrl, String descripcion) {
         this.id = id;
         this.nombre = nombre;
-        this.categoria = categoria;
+        this.tipo = tipo;
         this.tiempo = tiempo;
         this.dificultad = dificultad;
         this.imagenUrl = imagenUrl;
@@ -42,8 +42,8 @@ public class Recipe {
     public String getNombre() { return nombre; }
     public void setNombre(String nombre) { this.nombre = nombre; }
 
-    public String getCategoria() { return categoria; }
-    public void setCategoria(String categoria) { this.categoria = categoria; }
+    public String getCategoria() { return tipo; }
+    public void setCategoria(String tipo) { this.tipo = tipo; }
 
     public String getTiempo() { return tiempo; }
     public void setTiempo(String tiempo) { this.tiempo = tiempo; }

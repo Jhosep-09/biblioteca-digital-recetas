@@ -5,6 +5,7 @@
     android:orientation="vertical"
     android:background="#F5F5F5">
 
+    <!-- BUSCADOR -->
     <EditText
         android:id="@+id/searchEditText"
         android:layout_width="match_parent"
@@ -18,11 +19,15 @@
         android:drawablePadding="8dp"
         android:layout_margin="8dp" />
 
+    <!-- CONTENEDOR FILTROS -->
     <LinearLayout
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:orientation="vertical"
-        android:padding="8dp">
+        android:paddingStart="12dp"
+        android:paddingEnd="12dp"
+        android:paddingTop="4dp"
+        android:paddingBottom="4dp">
 
         <TextView
             android:layout_width="wrap_content"
@@ -30,21 +35,30 @@
             android:text="Tipo de Comida:"
             android:textStyle="bold"
             android:textColor="#212121"
-            android:layout_marginStart="8dp" />
+            android:textSize="14sp"
+            android:layout_marginBottom="6dp" />
 
         <RadioGroup
             android:id="@+id/filterRadioGroup"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:orientation="horizontal"
-            android:padding="8dp">
+            android:gravity="center"
+            android:paddingTop="4dp"
+            android:paddingBottom="4dp">
 
+            <!-- Cada botón ocupa el mismo ancho, pero con buen alto y padding -->
             <RadioButton
                 android:id="@+id/filterAll"
                 android:layout_width="0dp"
                 android:layout_height="wrap_content"
                 android:layout_weight="1"
+                android:gravity="center"
+                android:minHeight="40dp"
+                android:paddingLeft="4dp"
+                android:paddingRight="4dp"
                 android:text="Todas"
+                android:textSize="11sp"
                 android:checked="true" />
 
             <RadioButton
@@ -52,25 +66,66 @@
                 android:layout_width="0dp"
                 android:layout_height="wrap_content"
                 android:layout_weight="1"
-                android:text="Vegetariana" />
+                android:gravity="center"
+                android:minHeight="40dp"
+                android:paddingLeft="4dp"
+                android:paddingRight="4dp"
+                android:text="Vegetariana"
+                android:textSize="11sp" />
 
             <RadioButton
                 android:id="@+id/filterFast"
                 android:layout_width="0dp"
                 android:layout_height="wrap_content"
                 android:layout_weight="1"
-                android:text="Rápida" />
+                android:gravity="center"
+                android:minHeight="40dp"
+                android:paddingLeft="4dp"
+                android:paddingRight="4dp"
+                android:text="Rápidas"
+                android:textSize="11sp" />
 
             <RadioButton
                 android:id="@+id/filterDesserts"
                 android:layout_width="0dp"
                 android:layout_height="wrap_content"
                 android:layout_weight="1"
-                android:text="Postres" />
+                android:gravity="center"
+                android:minHeight="40dp"
+                android:paddingLeft="4dp"
+                android:paddingRight="4dp"
+                android:text="Postres"
+                android:textSize="11sp" />
+
+            <RadioButton
+                android:id="@+id/filterParrillas"
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_weight="1"
+                android:gravity="center"
+                android:minHeight="40dp"
+                android:paddingLeft="4dp"
+                android:paddingRight="4dp"
+                android:text="Parrillas"
+                android:textSize="11sp" />
+
+            <RadioButton
+                android:id="@+id/filterCarnes"
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_weight="1"
+                android:gravity="center"
+                android:minHeight="40dp"
+                android:paddingLeft="4dp"
+                android:paddingRight="4dp"
+                android:text="Carnes"
+                android:textSize="11sp" />
+
         </RadioGroup>
 
     </LinearLayout>
 
+    <!-- LISTA DE RECETAS -->
     <androidx.recyclerview.widget.RecyclerView
         android:id="@+id/recipesRecyclerView"
         android:layout_width="match_parent"
