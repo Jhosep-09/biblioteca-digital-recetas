@@ -37,6 +37,9 @@ public class SearchActivity extends AppCompatActivity {
 
     private FirebaseFirestore db;
 
+    // <- nuevo: para recordar qué filtro llegó desde MainActivity
+    private String filtroInicial;
+
     @SuppressLint("MissingInflatedId")
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -59,10 +62,33 @@ public class SearchActivity extends AppCompatActivity {
         // Inicializar Firestore
         db = FirebaseFirestore.getInstance();
 
+        // 🟢 LEER FILTRO QUE LLEGA DESDE MAINACTIVITY
+        filtroInicial = getIntent().getStringExtra("filtro");
+        if (filtroInicial != null) {
+            switch (filtroInicial) {
+                case "Vegetariana":
+                    filterVegetarian.setChecked(true);
+                    break;
+                case "Rápida":
+                    filterFast.setChecked(true);
+                    break;
+                case "Postres":
+                    filterDesserts.setChecked(true);
+                    break;
+                case "Todas":
+                default:
+                    filterAll.setChecked(true);
+                    break;
+            }
+        } else {
+            // si no vino nada, por defecto "Todas"
+            filterAll.setChecked(true);
+        }
+
         // Cargar datos desde Firebase
         cargarRecetasDesdeFirebase();
 
-        // Búsqueda
+        // Búsqueda por texto
         searchEditText.addTextChangedListener(new TextWatcher() {
             @Override public void beforeTextChanged(CharSequence s, int start, int count, int after) {}
             @Override public void afterTextChanged(Editable s) {}
@@ -73,7 +99,7 @@ public class SearchActivity extends AppCompatActivity {
             }
         });
 
-        // Filtros
+        // Filtros por categoría (radio buttons)
         filterRadioGroup.setOnCheckedChangeListener((group, checkedId) -> aplicarFiltros());
     }
 
@@ -129,9 +155,13 @@ public class SearchActivity extends AppCompatActivity {
                         todasLasRecetas.add(receta);
                     }
 
-                    recetasFiltradas.clear();
-                    recetasFiltradas.addAll(todasLasRecetas);
-                    adapter.notifyDataSetChanged();
+                    // 🔴 ANTES: siempre mostrabas todas
+                    // recetasFiltradas.clear();
+                    // recetasFiltradas.addAll(todasLasRecetas);
+                    // adapter.notifyDataSetChanged();
+
+                    // ✅ AHORA: aplica el filtro (texto + categoría)
+                    aplicarFiltros();
                 })
                 .addOnFailureListener(e ->
                         Toast.makeText(this, "Error al cargar recetas: " + e.getMessage(), Toast.LENGTH_SHORT).show()
@@ -149,7 +179,9 @@ public class SearchActivity extends AppCompatActivity {
             String categoria = recipe.getCategoria() != null ? recipe.getCategoria() : "";
 
             boolean coincideNombre = nombre.toLowerCase().contains(terminoLower);
-            boolean coincideCategoria = filterCategoria.equals("Todas") || categoria.equals(filterCategoria);
+            boolean coincideCategoria =
+                    filterCategoria.equals("Todas")
+                            || categoria.equalsIgnoreCase(filterCategoria);
 
             if (coincideNombre && coincideCategoria) {
                 recetasFiltradas.add(recipe);
@@ -167,8 +199,10 @@ public class SearchActivity extends AppCompatActivity {
         int selectedId = filterRadioGroup.getCheckedRadioButtonId();
 
         if (selectedId == R.id.filterVegetarian) return "Vegetariana";
-        else if (selectedId == R.id.filterFast) return "Rápida";
+        else if (selectedId == R.id.filterFast) return "Rapido";
         else if (selectedId == R.id.filterDesserts) return "Postres";
+        else if (selectedId == R.id.filterCarnes) return "Carnes";
+        else if (selectedId == R.id.filterParrillas) return "Parrillas";
 
         return "Todas";
     }

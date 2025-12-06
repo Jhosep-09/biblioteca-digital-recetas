@@ -14,8 +14,9 @@ import com.bumptech.glide.Glide;
 import com.example.biblioteca_digital.R;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.firestore.DocumentReference;
-import com.google.firebase.firestore.FieldValue;
 import com.google.firebase.firestore.FirebaseFirestore;
+import com.google.firebase.firestore.FieldValue;
+import com.google.firebase.firestore.DocumentSnapshot;
 
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -65,18 +66,21 @@ public class RecipeDetailActivity extends AppCompatActivity {
         db = FirebaseFirestore.getInstance();
 
         // Leer extras (si existen)
+        ArrayList<String> ingredientesExtras = null;
+        ArrayList<String> pasosExtras = null;
+
         Bundle extras = getIntent().getExtras();
         if (extras != null) {
 
-            currentRecipeId = extras.getString("recipeId"); // asegúrate de mandar este extra
+            currentRecipeId = extras.getString("recipeId"); // id del documento en Firestore
             String recipeName = extras.getString("recipeName");
             String recipeCategory = extras.getString("recipeCategory");
             String recipeTime = extras.getString("recipeTime");
             String recipeDifficulty = extras.getString("recipeDifficulty");
             String recipeDescription = extras.getString("recipeDescription");
             recipeImageUrl = extras.getString("recipeImageUrl"); // URL desde Firebase
-            ArrayList<String> ingredientes = extras.getStringArrayList("recipeIngredients");
-            ArrayList<String> pasos = extras.getStringArrayList("recipeSteps");
+            ingredientesExtras = extras.getStringArrayList("recipeIngredients");
+            pasosExtras = extras.getStringArrayList("recipeSteps");
 
             // Cargar imagen desde URL o drawable por defecto
             if (recipeImageUrl != null && recipeImageUrl.startsWith("http")) {
@@ -95,28 +99,29 @@ public class RecipeDetailActivity extends AppCompatActivity {
             recipeTimeTextView.setText("⏱️ " + (recipeTime != null ? recipeTime : ""));
             recipeDifficultyTextView.setText("Dificultad: " + (recipeDifficulty != null ? recipeDifficulty : ""));
             recipeDescriptionTextView.setText(recipeDescription != null ? recipeDescription : "");
+        }
 
-            // INGREDIENTES
-            if (ingredientes != null && !ingredientes.isEmpty()) {
-                SimpleListAdapter ingredientAdapter =
-                        new SimpleListAdapter(this, ingredientes, "Ingredientes");
-                ingredientsListView.setAdapter(ingredientAdapter);
-            }
-            android.util.Log.d("RECETA_DETAIL", "INGREDIENTES adapter count=" + ingredientsListView.getCount());
-            for (int i=0;i<ingredientsListView.getCount();i++){
-                android.util.Log.d("RECETA_DETAIL", "INGREDIENTE["+i+"]=" + ingredientsListView.getItemAtPosition(i));
-            }
+        // 1) Si VINIERON ingredientes/pasos por extras, los mostramos
+        if (ingredientesExtras != null && !ingredientesExtras.isEmpty()) {
+            SimpleListAdapter ingredientAdapter =
+                    new SimpleListAdapter(this, ingredientesExtras, "Ingredientes");
+            ingredientsListView.setAdapter(ingredientAdapter);
+            setListViewHeightBasedOnChildren(ingredientsListView);
+        }
 
-            // PASOS
-            if (pasos != null && !pasos.isEmpty()) {
-                SimpleListAdapter stepsAdapter =
-                        new SimpleListAdapter(this, pasos, "Pasos");
-                stepsListView.setAdapter(stepsAdapter);
-            }
-            android.util.Log.d("RECETA_DETAIL", "PASOS adapter count=" + stepsListView.getCount());
-            for (int i=0;i<stepsListView.getCount();i++){
-                android.util.Log.d("RECETA_DETAIL", "PASO["+i+"]=" + stepsListView.getItemAtPosition(i));
-            }
+        if (pasosExtras != null && !pasosExtras.isEmpty()) {
+            SimpleListAdapter stepsAdapter =
+                    new SimpleListAdapter(this, pasosExtras, "Pasos");
+            stepsListView.setAdapter(stepsAdapter);
+            setListViewHeightBasedOnChildren(stepsListView);
+        }
+
+        // 2) Si NO vinieron o están vacíos, los cargamos desde las SUBCOLECCIONES
+        if ((ingredientesExtras == null || ingredientesExtras.isEmpty()) && currentRecipeId != null) {
+            cargarIngredientesDesdeFirestore();
+        }
+        if ((pasosExtras == null || pasosExtras.isEmpty()) && currentRecipeId != null) {
+            cargarPasosDesdeFirestore();
         }
 
         // Comprobar si ya es favorito (solo si hay usuario logueado y recipeId)
@@ -146,6 +151,118 @@ public class RecipeDetailActivity extends AppCompatActivity {
         backButton.setOnClickListener(v -> finish());
     }
 
+    /**
+     * Lee la subcolección ingredientes de recetas/{id}/ingredientes
+     */
+    private void cargarIngredientesDesdeFirestore() {
+        if (currentRecipeId == null) return;
+
+        db.collection("recetas")
+                .document(currentRecipeId)
+                .collection("ingredientes") // nombre de la subcolección
+                .get()
+                .addOnSuccessListener(query -> {
+                    ArrayList<String> lista = new ArrayList<>();
+                    for (DocumentSnapshot doc : query.getDocuments()) {
+                        String nombre = doc.getString("nombre");
+                        String cantidad = doc.getString("cantidad");
+
+                        if (nombre == null) nombre = "";
+                        if (cantidad == null) cantidad = "";
+
+                        String item = (cantidad.isEmpty() ? "" : cantidad + " ") + nombre;
+                        lista.add(item);
+                    }
+
+                    android.util.Log.d("RECETA_DETAIL", "Ingredientes subcolección count=" + lista.size());
+
+                    if (!lista.isEmpty()) {
+                        SimpleListAdapter ingredientAdapter =
+                                new SimpleListAdapter(this, lista, "Ingredientes");
+                        ingredientsListView.setAdapter(ingredientAdapter);
+                        setListViewHeightBasedOnChildren(ingredientsListView);
+                    }
+                })
+                .addOnFailureListener(e -> {
+                    android.util.Log.e("RECETA_DETAIL", "Error cargando ingredientes subcolección", e);
+                });
+    }
+
+    /**
+     * Lee la subcolección pasos de recetas/{id}/pasos
+     */
+    private void cargarPasosDesdeFirestore() {
+        if (currentRecipeId == null) return;
+
+        db.collection("recetas")
+                .document(currentRecipeId)
+                .collection("pasos")
+                .orderBy("numero")
+                .get()
+                .addOnSuccessListener(query -> {
+                    ArrayList<String> descripciones = new ArrayList<>();
+                    ArrayList<String> imagenes = new ArrayList<>();
+
+                    for (DocumentSnapshot doc : query.getDocuments()) {
+                        String desc = doc.getString("descripcion");
+                        String img = doc.getString("imagen");
+
+                        android.util.Log.d(
+                                "PASO_DEBUG",
+                                "docId=" + doc.getId()
+                                        + " numero=" + doc.get("numero")
+                                        + " desc=" + desc
+                                        + " imgRAW=[" + img + "]"
+                        );
+
+                        // 🔥 LIMPIAR ESPACIOS (muy probable que aquí esté el problema)
+                        if (img != null) {
+                            img = img.trim();
+                        }
+
+                        if (desc == null) desc = "";
+                        descripciones.add(desc);
+                        imagenes.add(img);
+                    }
+
+                    android.util.Log.d("RECETA_DETAIL",
+                            "Pasos subcolección count=" + descripciones.size());
+
+                    if (!descripciones.isEmpty()) {
+                        StepsListAdapter stepsAdapter =
+                                new StepsListAdapter(this, descripciones, imagenes);
+                        stepsListView.setAdapter(stepsAdapter);
+                        setListViewHeightBasedOnChildren(stepsListView);
+                    }
+                })
+                .addOnFailureListener(e -> {
+                    android.util.Log.e("RECETA_DETAIL", "Error cargando pasos subcolección", e);
+                });
+    }
+
+
+
+    // Ajustar altura de ListView dentro del ScrollView
+    private void setListViewHeightBasedOnChildren(ListView listView) {
+        android.widget.ListAdapter listAdapter = listView.getAdapter();
+        if (listAdapter == null) return;
+
+        int totalHeight = 0;
+        for (int i = 0; i < listAdapter.getCount(); i++) {
+            android.view.View listItem = listAdapter.getView(i, null, listView);
+            listItem.measure(
+                    android.view.View.MeasureSpec.makeMeasureSpec(listView.getWidth(), android.view.View.MeasureSpec.AT_MOST),
+                    android.view.View.MeasureSpec.makeMeasureSpec(0, android.view.View.MeasureSpec.UNSPECIFIED)
+            );
+            totalHeight += listItem.getMeasuredHeight();
+        }
+        int dividerHeight = listView.getDividerHeight() * (listAdapter.getCount() - 1);
+        android.view.ViewGroup.LayoutParams params = listView.getLayoutParams();
+        params.height = totalHeight + dividerHeight + listView.getPaddingTop() + listView.getPaddingBottom();
+        listView.setLayoutParams(params);
+        listView.requestLayout();
+    }
+
     private void toggleFavorite() {
         if (auth.getCurrentUser() == null || currentRecipeId == null) {
             Toast.makeText(this, "Debes iniciar sesión para usar favoritos", Toast.LENGTH_SHORT).show();
@@ -158,11 +275,13 @@ public class RecipeDetailActivity extends AppCompatActivity {
 
         if (!isFavorite) {
             // crear favorito (guardamos copia mínima)
-            Map<String,Object> data = new HashMap<>();
+            Map<String, Object> data = new HashMap<>();
             data.put("recipeId", currentRecipeId);
             data.put("titulo", recipeNameTextView.getText().toString());
             // preferimos la URL si la tenemos
-            String img = recipeImageUrl != null ? recipeImageUrl : (recipeImageView.getTag() != null ? recipeImageView.getTag().toString() : "");
+            String img = recipeImageUrl != null
+                    ? recipeImageUrl
+                    : (recipeImageView.getTag() != null ? recipeImageView.getTag().toString() : "");
             data.put("imagen", img);
             data.put("savedAt", FieldValue.serverTimestamp());
 
@@ -215,4 +334,5 @@ public class RecipeDetailActivity extends AppCompatActivity {
             return convertView;
         }
     }
+
 }

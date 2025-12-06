@@ -38,7 +38,7 @@ public class RecipeAdapter extends RecyclerView.Adapter<RecipeAdapter.RecipeView
         View view = LayoutInflater.from(parent.getContext())
                 .inflate(R.layout.item_recipe, parent, false);
 
-        context = parent.getContext(); // guardamos el context
+        context = parent.getContext();
         return new RecipeViewHolder(view);
     }
 

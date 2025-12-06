@@ -77,7 +77,8 @@ public class MainActivity extends AppCompatActivity {
     }
     private void cargarRecetasDesdeFirestore() {
         FirebaseFirestore db = FirebaseFirestore.getInstance();
-        db.collection("recetas").get()
+        db.collection("recetas")
+                .get()
                 .addOnSuccessListener(queryDocumentSnapshots -> {
                     recetas.clear();
                     for (QueryDocumentSnapshot doc : queryDocumentSnapshots) {
